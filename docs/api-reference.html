@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Reference - simple_statistics</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>simple_statistics</h1>
+        <p class="tagline">Complete API Reference</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="#statistics">STATISTICS</a></li>
+            <li><a href="#test-result">TEST_RESULT</a></li>
+            <li><a href="#regression-result">REGRESSION_RESULT</a></li>
+            <li><a href="quick.html">Quick API</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="statistics">
+            <h2>Class: STATISTICS</h2>
+            <p>Main facade class providing all statistical operations. Stateless - safe to share or create new instances.</p>
+
+            <h3>Descriptive Statistics Methods</h3>
+            <ul>
+                <li><strong>mean(data)</strong> - Arithmetic mean using Welford's numerically stable algorithm</li>
+                <li><strong>median(data)</strong> - 50th percentile (middle value)</li>
+                <li><strong>variance(data)</strong> - Population variance (>= 0.0)</li>
+                <li><strong>std_dev(data)</strong> - Standard deviation (>= 0.0)</li>
+                <li><strong>sum(data)</strong> - Sum using Kahan compensated summation</li>
+                <li><strong>min_value(data)</strong> - Minimum value in array</li>
+                <li><strong>max_value(data)</strong> - Maximum value in array</li>
+                <li><strong>range(data)</strong> - max - min (>= 0.0)</li>
+                <li><strong>percentile(data, p)</strong> - p-th percentile where p in [0, 100]</li>
+                <li><strong>quartiles(data)</strong> - Returns array of [Q1, Q2, Q3]</li>
+                <li><strong>mode(data)</strong> - Most frequent value</li>
+            </ul>
+
+            <h3>Bivariate Analysis Methods</h3>
+            <ul>
+                <li><strong>covariance(x, y)</strong> - Joint dispersion (requires x.count = y.count)</li>
+                <li><strong>correlation(x, y)</strong> - Pearson correlation in [-1, 1] (symmetric)</li>
+            </ul>
+
+            <h3>Regression</h3>
+            <ul>
+                <li><strong>linear_regression(x, y)</strong> - Returns REGRESSION_RESULT with slope, intercept, R²</li>
+            </ul>
+
+            <h3>Hypothesis Testing Methods</h3>
+            <ul>
+                <li><strong>t_test_one_sample(data, mu_0)</strong> - Test if mean = mu_0</li>
+                <li><strong>t_test_two_sample(x, y)</strong> - Welch's t-test for unequal variances</li>
+                <li><strong>t_test_paired(x, y)</strong> - Paired t-test on differences</li>
+                <li><strong>chi_square_test(observed, expected)</strong> - Chi-square goodness-of-fit</li>
+                <li><strong>anova(groups)</strong> - One-way ANOVA (requires >= 3 groups)</li>
+            </ul>
+        </section>
+
+        <section id="test-result">
+            <h2>Class: TEST_RESULT</h2>
+            <p>Immutable result object from hypothesis tests.</p>
+
+            <h3>Features</h3>
+            <ul>
+                <li><strong>statistic</strong> - Test statistic value (t, chi-square, F)</li>
+                <li><strong>p_value</strong> - P-value in [0, 1] (placeholder 0.5 in v1.0)</li>
+                <li><strong>degrees_of_freedom</strong> - dof for the distribution</li>
+                <li><strong>conclusion(alpha)</strong> - Returns true if p_value < alpha</li>
+                <li><strong>is_significant(alpha)</strong> - Convenience method (same as conclusion)</li>
+            </ul>
+        </section>
+
+        <section id="regression-result">
+            <h2>Class: REGRESSION_RESULT</h2>
+            <p>Immutable linear regression output.</p>
+
+            <h3>Features</h3>
+            <ul>
+                <li><strong>slope</strong> - Regression slope (y = slope*x + intercept)</li>
+                <li><strong>intercept</strong> - Y-intercept value</li>
+                <li><strong>r_squared</strong> - R² in [0, 1], higher is better fit</li>
+                <li><strong>predict(x)</strong> - Predict y value for new x</li>
+            </ul>
+        </section>
+
+        <section id="cleaned">
+            <h2>Class: CLEANED_STATISTICS</h2>
+            <p>Data cleaning utilities.</p>
+
+            <h3>Methods</h3>
+            <ul>
+                <li><strong>remove_nan(data)</strong> - Return array with NaN values removed</li>
+                <li><strong>remove_infinite(data)</strong> - Return array with infinite values removed</li>
+                <li><strong>clean(data)</strong> - Remove both NaN and infinite values</li>
+            </ul>
+        </section>
+
+        <section id="contracts">
+            <h2>Contract Guarantees</h2>
+            <p>All features are specified with Design by Contract. Key guarantees:</p>
+
+            <h3>Preconditions (require)</h3>
+            <ul>
+                <li>Most descriptive statistics require non-empty data</li>
+                <li>Correlation and covariance require arrays of same length</li>
+                <li>ANOVA requires at least 3 groups</li>
+            </ul>
+
+            <h3>Postconditions (ensure)</h3>
+            <ul>
+                <li>Variance and std_dev are always non-negative</li>
+                <li>Correlation is always in [-1, 1]</li>
+                <li>R-squared is always in [0, 1]</li>
+                <li>P-values are always in [0, 1]</li>
+                <li>Quartiles are ordered: Q1 <= Q2 <= Q3</li>
+            </ul>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 Simple Eiffel Contributors. MIT License.</p>
+            <p><a href="index.html">Home</a> | <a href="https://github.com/simple-eiffel/simple_statistics">GitHub</a></p>
+        </footer>
+    </main>
+</body>
+</html>

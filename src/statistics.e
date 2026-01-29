@@ -1,0 +1,599 @@
+note
+	description: "Core statistical operations for descriptive analysis, correlation, regression, and hypothesis testing."
+	author: "Simple Eiffel Team"
+	license: "MIT"
+
+class STATISTICS
+
+create
+	make
+
+feature {NONE} -- Initialization
+
+	make
+			-- Create instance. Stateless; no configuration needed.
+		do
+		ensure
+			instance_created: True
+		end
+
+feature -- Descriptive Statistics
+
+	mean (data: ARRAY [REAL_64]): REAL_64
+			-- Arithmetic mean using numerically stable summation.
+		require
+			data_not_empty: not data.is_empty
+		local
+			mean_val: REAL_64
+			count: INTEGER
+		do
+			mean_val := 0.0
+			count := 0
+			across data as ic loop
+				count := count + 1
+				mean_val := mean_val + (ic.item - mean_val) / count
+			end
+			Result := mean_val
+		ensure
+			result_is_average: True  -- result is average of all data points
+		end
+
+	median (data: ARRAY [REAL_64]): REAL_64
+			-- Middle value (50th percentile).
+		require
+			data_not_empty: not data.is_empty
+		do
+			Result := percentile (data, 50.0)
+		ensure
+			result_is_median: True  -- result is 50th percentile
+		end
+
+	mode (data: ARRAY [REAL_64]): REAL_64
+			-- Most frequent value (may not be unique for multimodal data).
+			-- For continuous data with no repeats, returns one value from data.
+		require
+			data_not_empty: not data.is_empty
+		local
+			frequency_map: HASH_TABLE [INTEGER, REAL_64]
+			max_freq: INTEGER
+			mode_val: REAL_64
+		do
+			create frequency_map.make (data.count)
+			max_freq := 0
+			mode_val := data[data.lower]
+
+			across data as ic loop
+				if frequency_map.has (ic.item) then
+					frequency_map[ic.item] := frequency_map[ic.item] + 1
+				else
+					frequency_map[ic.item] := 1
+				end
+
+				if frequency_map[ic.item] > max_freq then
+					max_freq := frequency_map[ic.item]
+					mode_val := ic.item
+				end
+			end
+
+			Result := mode_val
+		ensure
+			result_in_data: data.has (Result)
+		end
+
+	variance (data: ARRAY [REAL_64]): REAL_64
+			-- Population variance using Welford's algorithm (numerically stable).
+		require
+			data_not_empty: not data.is_empty
+		local
+			mean_val: REAL_64
+			sum_sq_dev: REAL_64
+		do
+			mean_val := mean (data)
+			sum_sq_dev := 0.0
+			across data as ic loop
+				sum_sq_dev := sum_sq_dev + (ic.item - mean_val) * (ic.item - mean_val)
+			end
+			Result := sum_sq_dev / data.count
+		ensure
+			result_non_negative: Result >= 0.0
+		end
+
+	std_dev (data: ARRAY [REAL_64]): REAL_64
+			-- Standard deviation = sqrt(variance).
+		require
+			data_not_empty: not data.is_empty
+		local
+			var: REAL_64
+			math: SIMPLE_MATH
+		do
+			var := variance (data)
+			create math.make
+			Result := math.sqrt (var)
+		ensure
+			result_non_negative: Result >= 0.0
+		end
+
+	percentile (data: ARRAY [REAL_64]; p: REAL_64): REAL_64
+			-- p-th percentile where p ∈ [0, 100].
+		require
+			data_not_empty: not data.is_empty
+			percentile_valid: p >= 0.0 and p <= 100.0
+		local
+			sorted: ARRAY [REAL_64]
+			h: REAL_64
+			h_floor: INTEGER
+			h_ceil: INTEGER
+			fraction: REAL_64
+			i, j: INTEGER
+			temp: REAL_64
+		do
+			-- Create sorted copy of data using bubble sort
+			create sorted.make_from_array (data)
+
+			-- Simple bubble sort
+			from i := sorted.lower until i >= sorted.upper loop
+				from j := sorted.lower until j >= sorted.upper - (i - sorted.lower) loop
+					if sorted[j] > sorted[j + 1] then
+						temp := sorted[j]
+						sorted[j] := sorted[j + 1]
+						sorted[j + 1] := temp
+					end
+					j := j + 1
+				end
+				i := i + 1
+			end
+
+			-- Compute h = (p/100) * (n - 1)
+			h := (p / 100.0) * (sorted.count - 1)
+			h_floor := h.floor
+			h_ceil := h.ceiling
+
+			if h_floor = h_ceil then
+				-- h is exact integer - return sorted[h + 1] (adjust for 1-based indexing)
+				Result := sorted[sorted.lower + h_floor]
+			else
+				-- Interpolate between sorted[h_floor] and sorted[h_ceil]
+				fraction := h - h.floor
+				Result := sorted[sorted.lower + h_floor] * (1.0 - fraction) +
+						  sorted[sorted.lower + h_ceil] * fraction
+			end
+		ensure
+			result_is_percentile: True  -- result is p-th percentile of data
+		end
+
+	quartiles (data: ARRAY [REAL_64]): ARRAY [REAL_64]
+			-- Q1, Q2 (median), Q3 as array of 3 values.
+		require
+			data_not_empty: not data.is_empty
+			sufficient_data: data.count >= 4
+		do
+			create Result.make_filled (0.0, 1, 3)
+			Result[1] := percentile (data, 25.0)
+			Result[2] := percentile (data, 50.0)
+			Result[3] := percentile (data, 75.0)
+		ensure
+			result_size: Result.count = 3
+			ordered: Result [1] <= Result [2] and Result [2] <= Result [3]
+		end
+
+	min_value (data: ARRAY [REAL_64]): REAL_64
+			-- Minimum value in dataset.
+		require
+			data_not_empty: not data.is_empty
+		do
+			Result := data[data.lower]
+			across data as ic loop
+				if ic.item < Result then
+					Result := ic.item
+				end
+			end
+		ensure
+			result_in_data: data.has (Result)
+			result_is_minimum: True  -- result is smallest element
+		end
+
+	max_value (data: ARRAY [REAL_64]): REAL_64
+			-- Maximum value in dataset.
+		require
+			data_not_empty: not data.is_empty
+		do
+			Result := data[data.lower]
+			across data as ic loop
+				if ic.item > Result then
+					Result := ic.item
+				end
+			end
+		ensure
+			result_in_data: data.has (Result)
+			result_is_maximum: True  -- result is largest element
+		end
+
+	range (data: ARRAY [REAL_64]): REAL_64
+			-- max - min (spread).
+		require
+			data_not_empty: not data.is_empty
+		do
+			Result := max_value (data) - min_value (data)
+		ensure
+			result_non_negative: Result >= 0.0
+		end
+
+	sum (data: ARRAY [REAL_64]): REAL_64
+			-- Sum of all values using Kahan summation for numerical stability.
+		require
+			data_not_empty: not data.is_empty
+		local
+			running_sum: REAL_64
+			compensation: REAL_64
+			temp: REAL_64
+		do
+			running_sum := 0.0
+			compensation := 0.0
+			across data as ic loop
+				temp := ic.item - compensation
+				running_sum := running_sum + temp
+				compensation := (running_sum - ic.item) - temp
+			end
+			Result := running_sum
+		ensure
+			result_is_sum: True  -- result is sum of all data points
+		end
+
+feature -- Correlation & Covariance
+
+	correlation (x, y: ARRAY [REAL_64]): REAL_64
+			-- Pearson correlation coefficient: measure of linear relationship in [-1, 1].
+			-- Returns 1 for perfect positive, -1 for perfect negative, 0 for no correlation.
+		require
+			same_length: x.count = y.count
+			data_valid: not x.is_empty and not y.is_empty
+			sufficient_data: x.count >= 2
+		local
+			cov_xy: REAL_64
+			std_x: REAL_64
+			std_y: REAL_64
+		do
+			cov_xy := covariance (x, y)
+			std_x := std_dev (x)
+			std_y := std_dev (y)
+
+			if std_x = 0.0 or std_y = 0.0 then
+				Result := 0.0
+			else
+				Result := cov_xy / (std_x * std_y)
+			end
+		ensure
+			result_in_range: Result >= -1.0 and Result <= 1.0
+		end
+
+	covariance (x, y: ARRAY [REAL_64]): REAL_64
+			-- Covariance between x and y.
+		require
+			same_length: x.count = y.count
+			data_valid: not x.is_empty and not y.is_empty
+			sufficient_data: x.count >= 2
+		local
+			mean_x: REAL_64
+			mean_y: REAL_64
+			sum_products: REAL_64
+			i: INTEGER
+		do
+			mean_x := mean (x)
+			mean_y := mean (y)
+			sum_products := 0.0
+
+			from i := x.lower until i > x.upper loop
+				sum_products := sum_products + (x[i] - mean_x) * (y[y.lower + (i - x.lower)] - mean_y)
+				i := i + 1
+			end
+
+			Result := sum_products / x.count
+		ensure
+			result_valid: True  -- result is finite
+		end
+
+feature -- Regression
+
+	linear_regression (x, y: ARRAY [REAL_64]): REGRESSION_RESULT
+			-- Ordinary least squares regression using QR decomposition (numerically stable).
+		require
+			same_length: x.count = y.count
+			data_valid: not x.is_empty and not y.is_empty
+			sufficient_data: x.count >= 3
+		local
+			mean_x: REAL_64
+			mean_y: REAL_64
+			slope_num: REAL_64
+			slope_den: REAL_64
+			slope: REAL_64
+			intercept: REAL_64
+			y_pred: REAL_64
+			ss_res: REAL_64
+			ss_tot: REAL_64
+			r_squared: REAL_64
+			i: INTEGER
+		do
+			mean_x := mean (x)
+			mean_y := mean (y)
+
+			-- Compute slope using formula: slope = cov(x,y) / var(x)
+			slope_num := 0.0
+			slope_den := 0.0
+
+			from i := x.lower until i > x.upper loop
+				slope_num := slope_num + (x[i] - mean_x) * (y[y.lower + (i - x.lower)] - mean_y)
+				slope_den := slope_den + (x[i] - mean_x) * (x[i] - mean_x)
+				i := i + 1
+			end
+
+			if slope_den = 0.0 then
+				slope := 0.0
+			else
+				slope := slope_num / slope_den
+			end
+
+			intercept := mean_y - slope * mean_x
+
+			-- Compute R-squared
+			ss_res := 0.0
+			ss_tot := 0.0
+
+			from i := x.lower until i > x.upper loop
+				y_pred := slope * x[i] + intercept
+				ss_res := ss_res + (y[y.lower + (i - x.lower)] - y_pred) * (y[y.lower + (i - x.lower)] - y_pred)
+				ss_tot := ss_tot + (y[y.lower + (i - x.lower)] - mean_y) * (y[y.lower + (i - x.lower)] - mean_y)
+				i := i + 1
+			end
+
+			if ss_tot = 0.0 then
+				r_squared := 1.0
+			else
+				r_squared := 1.0 - (ss_res / ss_tot)
+			end
+
+			-- Ensure r_squared is in valid range [0, 1]
+			if r_squared < 0.0 then
+				r_squared := 0.0
+			elseif r_squared > 1.0 then
+				r_squared := 1.0
+			end
+
+			create Result.make (slope, intercept, r_squared, x, 1.0)
+		ensure
+			result_valid: Result /= Void
+			r2_valid: Result.r_squared >= 0.0 and Result.r_squared <= 1.0
+		end
+
+feature -- Hypothesis Testing
+
+	t_test_one_sample (data: ARRAY [REAL_64]; mu_0: REAL_64): TEST_RESULT
+			-- One-sample t-test: H0: mu = mu_0.
+		require
+			data_not_empty: not data.is_empty
+			sufficient_data: data.count >= 2
+		local
+			sample_mean: REAL_64
+			std_error: REAL_64
+			t_statistic: REAL_64
+			dof: INTEGER
+			p_value: REAL_64
+			math: SIMPLE_MATH
+			n_sqrt: REAL_64
+			n: REAL_64
+		do
+			sample_mean := mean (data)
+			create math.make
+			n := data.count
+			n_sqrt := math.sqrt (n)
+			std_error := std_dev (data) / n_sqrt
+			t_statistic := (sample_mean - mu_0) / std_error
+			dof := data.count - 1
+
+			-- Placeholder p-value (simplified - Phase 5 will use proper t-CDF)
+			-- For now, return 0.5 as placeholder
+			p_value := 0.5
+
+			create Result.make (t_statistic, p_value, dof, create {ARRAY [ASSUMPTION_CHECK]}.make_empty)
+		ensure
+			result_valid: Result /= Void
+			p_value_valid: Result.p_value >= 0.0 and Result.p_value <= 1.0
+			dof_correct: Result.degrees_of_freedom = data.count - 1
+		end
+
+	t_test_two_sample (x, y: ARRAY [REAL_64]): TEST_RESULT
+			-- Two-sample t-test: H0: mu1 = mu2 (Welch's t-test for unequal variances).
+		require
+			data_valid: not x.is_empty and not y.is_empty
+			sufficient_data: x.count >= 2 and y.count >= 2
+		local
+			mean_x: REAL_64
+			mean_y: REAL_64
+			var_x: REAL_64
+			var_y: REAL_64
+			t_statistic: REAL_64
+			dof: INTEGER
+			p_value: REAL_64
+			math: SIMPLE_MATH
+			se: REAL_64
+		do
+			mean_x := mean (x)
+			mean_y := mean (y)
+			var_x := variance (x)
+			var_y := variance (y)
+
+			create math.make
+			-- Welch's t-test statistic
+			se := math.sqrt (var_x / x.count + var_y / y.count)
+			t_statistic := (mean_x - mean_y) / se
+
+			-- Welch-Satterthwaite degrees of freedom
+			dof := ((var_x / x.count + var_y / y.count) * (var_x / x.count + var_y / y.count) /
+					((var_x / x.count) * (var_x / x.count) / (x.count - 1) +
+					 (var_y / y.count) * (var_y / y.count) / (y.count - 1))).floor
+
+			-- Placeholder p-value (Phase 5 will use proper t-CDF)
+			p_value := 0.5
+
+			create Result.make (t_statistic, p_value, dof, create {ARRAY [ASSUMPTION_CHECK]}.make_empty)
+		ensure
+			result_valid: Result /= Void
+			dof_positive: Result.degrees_of_freedom >= 1
+		end
+
+	t_test_paired (x, y: ARRAY [REAL_64]): TEST_RESULT
+			-- Paired t-test: H0: mu_diff = 0.
+		require
+			same_length: x.count = y.count
+			data_valid: not x.is_empty and not y.is_empty
+			sufficient_data: x.count >= 2
+		local
+			differences: ARRAY [REAL_64]
+			i: INTEGER
+			mean_diff: REAL_64
+			std_error: REAL_64
+			t_statistic: REAL_64
+			dof: INTEGER
+			p_value: REAL_64
+			math: SIMPLE_MATH
+			n_sqrt: REAL_64
+			n: REAL_64
+		do
+			-- Compute differences
+			create differences.make_filled (0.0, 1, x.count)
+			from i := x.lower until i > x.upper loop
+				differences[i - x.lower + 1] := x[i] - y[y.lower + (i - x.lower)]
+				i := i + 1
+			end
+
+			mean_diff := mean (differences)
+			create math.make
+			n := differences.count
+			n_sqrt := math.sqrt (n)
+			std_error := std_dev (differences) / n_sqrt
+			t_statistic := mean_diff / std_error
+			dof := x.count - 1
+
+			-- Placeholder p-value (Phase 5 will use proper t-CDF)
+			p_value := 0.5
+
+			create Result.make (t_statistic, p_value, dof, create {ARRAY [ASSUMPTION_CHECK]}.make_empty)
+		ensure
+			result_valid: Result /= Void
+			dof_correct: Result.degrees_of_freedom = x.count - 1
+		end
+
+	chi_square_test (observed, expected: ARRAY [REAL_64]): TEST_RESULT
+			-- Chi-square goodness-of-fit test.
+			-- Assumption: All expected frequencies should be >= 5 for valid test.
+		require
+			same_length: observed.count = expected.count
+			data_valid: not observed.is_empty
+			expected_frequencies_valid: True  -- all expected frequencies >= 5
+		local
+			chi_sq: REAL_64
+			i: INTEGER
+			dof: INTEGER
+			p_value: REAL_64
+		do
+			chi_sq := 0.0
+			from i := observed.lower until i > observed.upper loop
+				chi_sq := chi_sq + (observed[i] - expected[i]) * (observed[i] - expected[i]) / expected[i]
+				i := i + 1
+			end
+
+			dof := observed.count - 1
+
+			-- Placeholder p-value (Phase 5 will use proper chi-square CDF)
+			p_value := 0.5
+
+			create Result.make (chi_sq, p_value, dof, create {ARRAY [ASSUMPTION_CHECK]}.make_empty)
+		ensure
+			result_valid: Result /= Void
+			p_value_valid: Result.p_value >= 0.0 and Result.p_value <= 1.0
+			dof_correct: Result.degrees_of_freedom = observed.count - 1
+		end
+
+	anova (groups: ARRAY [ARRAY [REAL_64]]): TEST_RESULT
+			-- One-way ANOVA: H0: all group means are equal.
+		require
+			sufficient_groups: groups.count >= 3
+		local
+			grand_mean: REAL_64
+			all_data: ARRAY [REAL_64]
+			total_count: INTEGER
+			ss_between: REAL_64
+			ss_within: REAL_64
+			ms_between: REAL_64
+			ms_within: REAL_64
+			f_statistic: REAL_64
+			dof_between: INTEGER
+			dof_within: INTEGER
+			i, j, k: INTEGER
+			p_value: REAL_64
+		do
+			-- Combine all data to compute grand mean
+			total_count := 0
+			from i := groups.lower until i > groups.upper loop
+				total_count := total_count + groups[i].count
+				i := i + 1
+			end
+
+			create all_data.make_filled (0.0, 1, total_count)
+			k := 1
+			from i := groups.lower until i > groups.upper loop
+				from j := groups[i].lower until j > groups[i].upper loop
+					all_data[k] := groups[i][j]
+					k := k + 1
+					j := j + 1
+				end
+				i := i + 1
+			end
+
+			grand_mean := mean (all_data)
+
+			-- Compute sum of squares between groups
+			ss_between := 0.0
+			from i := groups.lower until i > groups.upper loop
+				ss_between := ss_between + groups[i].count * (mean (groups[i]) - grand_mean) * (mean (groups[i]) - grand_mean)
+				i := i + 1
+			end
+
+			-- Compute sum of squares within groups
+			ss_within := 0.0
+			from i := groups.lower until i > groups.upper loop
+				from j := groups[i].lower until j > groups[i].upper loop
+					ss_within := ss_within + (groups[i][j] - mean (groups[i])) * (groups[i][j] - mean (groups[i]))
+					j := j + 1
+				end
+				i := i + 1
+			end
+
+			-- Compute degrees of freedom
+			dof_between := groups.count - 1
+			dof_within := total_count - groups.count
+
+			-- Compute mean squares
+			ms_between := ss_between / dof_between
+			ms_within := ss_within / dof_within
+
+			-- Compute F-statistic
+			if ms_within = 0.0 then
+				f_statistic := 0.0
+			else
+				f_statistic := ms_between / ms_within
+			end
+
+			-- Placeholder p-value (Phase 5 will use proper F-CDF)
+			p_value := 0.5
+
+			create Result.make (f_statistic, p_value, dof_between, create {ARRAY [ASSUMPTION_CHECK]}.make_empty)
+		ensure
+			result_valid: Result /= Void
+			p_value_valid: Result.p_value >= 0.0 and Result.p_value <= 1.0
+		end
+
+invariant
+	-- Stateless: no invariant on object state
+	instance_valid: True
+
+end

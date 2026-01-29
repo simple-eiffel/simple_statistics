@@ -1,0 +1,71 @@
+# Phase 1 Compilation Evidence
+# Project: d:\prod\simple_statistics
+# Date: 2026-01-29
+# Target: simple_statistics_tests
+
+## Command
+/d/prod/ec.sh -batch -config simple_statistics.ecf -target simple_statistics_tests -c_compile
+
+## Compilation Status: PASS
+
+System Recompiled.
+
+## Changes Made
+1. Renamed SIMPLE_STATISTICS class to STATISTICS (avoided name conflict with simple_math.SIMPLE_STATISTICS)
+2. Fixed ECF configuration:
+   - Added proper <capability> block for void_safety and SCOOP support
+   - Removed invalid attribute syntax
+   - Switched test library from ISE testing to simple_testing
+
+3. Renamed test file: test_simple_statistics.e → test_statistics.e
+4. Created TEST_APP.e (test entry point following simple_json pattern)
+5. Created LIB_TESTS.e (test aggregator class)
+6. Fixed contract syntax:
+   - Removed multi-line agents from preconditions (ANOVA)
+   - Replaced scientific notation (1e-10) with decimal (0.0000000001)
+   - Removed non-existent is_finite, is_infinite, is_nan methods
+   - Removed non-existent Array.min and Array.max references
+   - Replaced obsolete make(min_idx, max_idx) with make_filled
+   - Removed invalid default parameter syntax (:= 0.05)
+
+## Classes Generated
+✓ STATISTICS (Tier 1 facade, 20 statistical methods)
+✓ TEST_RESULT (immutable result object for hypothesis tests)
+✓ REGRESSION_RESULT (immutable result object for regression)
+✓ ASSUMPTION_CHECK (assumption validation record)
+✓ CLEANED_STATISTICS (data cleaning utility)
+✓ TEST_STATISTICS (skeletal unit tests, 15+ test methods)
+✓ TEST_APP (test execution harness)
+✓ LIB_TESTS (core test class)
+
+## Files Created/Modified
+src/
+  ✓ statistics.e (renamed from simple_statistics.e)
+  ✓ test_result.e
+  ✓ regression_result.e
+  ✓ assumption_check.e
+  ✓ cleaned_statistics.e
+
+test/
+  ✓ test_statistics.e (renamed from test_simple_statistics.e)
+  ✓ test_app.e (NEW)
+  ✓ lib_tests.e (NEW)
+
+Configuration/
+  ✓ simple_statistics.ecf (fixed syntax)
+
+## Dependencies
+✓ base (ISE) - fundamental types
+✓ testing (ISE) - EQA_TEST_SET compatibility
+✓ simple_testing (simple_*) - TEST_SET_BASE for modern testing
+✓ simple_math (simple_*) - mathematical functions
+✓ simple_mml (simple_*) - MML postconditions (prepared for Phase 4)
+
+## Ecosystem Compliance
+simple_* First Policy: VERIFIED
+- ISE libraries used: base, testing (no simple_* equivalent)
+- simple_* libraries used: simple_testing, simple_math, simple_mml
+- No Gobo dependencies
+
+## Status: PHASE 1 COMPLETE
+Next: /eiffel.review d:\prod\simple_statistics

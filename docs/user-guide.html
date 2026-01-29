@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Guide - simple_statistics</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>simple_statistics</h1>
+        <p class="tagline">User Guide</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="#getting-started">Getting Started</a></li>
+            <li><a href="#examples">Examples</a></li>
+            <li><a href="api-reference.html">API Reference</a></li>
+            <li><a href="cookbook.html">Cookbook</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="getting-started">
+            <h2>Getting Started</h2>
+
+            <h3>Installation</h3>
+            <p>Add simple_statistics to your ECF file:</p>
+            <pre><code>&lt;library name="simple_statistics" location="$SIMPLE_EIFFEL/simple_statistics/simple_statistics.ecf"/&gt;</code></pre>
+
+            <h3>Basic Setup</h3>
+            <p>To use the library, create an instance of STATISTICS:</p>
+            <pre><code>local
+    stats: STATISTICS
+do
+    create stats.make
+    -- stats is now ready to use</code></pre>
+
+            <p>The STATISTICS class is stateless - you can share a single instance across your application or create new instances as needed.</p>
+        </section>
+
+        <section id="examples">
+            <h2>Comprehensive Examples</h2>
+
+            <h3>Example 1: Analyzing Test Scores</h3>
+            <pre><code>local
+    stats: STATISTICS
+    scores: ARRAY [REAL_64]
+    mean, median, std: REAL_64
+do
+    create stats.make
+    scores := {ARRAY [REAL_64]} << 85.0, 92.0, 78.0, 88.0, 95.0, 82.0 >>
+
+    -- Calculate descriptive statistics
+    mean := stats.mean (scores)              -- Average: 86.67
+    median := stats.median (scores)          -- Middle value: 86.5
+    std := stats.std_dev (scores)            -- Variability: 6.12
+
+    print ("Class Performance Report%N")
+    print ("Mean Score: " + mean.out + "%N")
+    print ("Median Score: " + median.out + "%N")
+    print ("Std Dev: " + std.out + "%N")</code></pre>
+
+            <h3>Example 2: Correlation Analysis</h3>
+            <pre><code>local
+    stats: STATISTICS
+    hours_studied, test_scores: ARRAY [REAL_64]
+    correlation: REAL_64
+do
+    create stats.make
+    hours_studied := {ARRAY [REAL_64]} << 1.0, 2.0, 3.0, 4.0, 5.0 >>
+    test_scores := {ARRAY [REAL_64]} << 65.0, 72.0, 81.0, 88.0, 95.0 >>
+
+    correlation := stats.correlation (hours_studied, test_scores)
+
+    if correlation > 0.9 then
+        print ("Strong positive correlation: more study time = higher scores%N")
+    elseif correlation > 0.7 then
+        print ("Moderate positive correlation%N")
+    else
+        print ("Weak or no correlation%N")
+    end</code></pre>
+
+            <h3>Example 3: Linear Regression</h3>
+            <pre><code>local
+    stats: STATISTICS
+    x, y: ARRAY [REAL_64]
+    result: REGRESSION_RESULT
+do
+    create stats.make
+    x := {ARRAY [REAL_64]} << 1.0, 2.0, 3.0, 4.0, 5.0 >>
+    y := {ARRAY [REAL_64]} << 2.0, 4.0, 6.0, 8.0, 10.0 >>
+
+    result := stats.linear_regression (x, y)
+
+    print ("Regression Equation: y = " + result.slope.out + "*x + " + result.intercept.out + "%N")
+    print ("R-squared: " + result.r_squared.out + "%N")
+    print ("Prediction at x=6: " + result.predict (6.0).out + "%N")</code></pre>
+
+            <h3>Example 4: Hypothesis Testing</h3>
+            <pre><code>local
+    stats: STATISTICS
+    group1, group2: ARRAY [REAL_64]
+    result: TEST_RESULT
+do
+    create stats.make
+    group1 := {ARRAY [REAL_64]} << 100.0, 105.0, 110.0, 95.0, 108.0 >>
+    group2 := {ARRAY [REAL_64]} << 98.0, 102.0, 104.0, 96.0, 101.0 >>
+
+    -- Test if groups have significantly different means
+    result := stats.t_test_two_sample (group1, group2)
+
+    if result.is_significant (0.05) then
+        print ("Groups are significantly different at 0.05 level%N")
+    else
+        print ("No significant difference between groups%N")
+    end
+
+    print ("t-statistic: " + result.statistic.out + "%N")
+    print ("p-value: " + result.p_value.out + "%N")</code></pre>
+        </section>
+
+        <section id="best-practices">
+            <h2>Best Practices</h2>
+
+            <h3>Data Validation</h3>
+            <p>Always ensure your data is clean before analysis:</p>
+            <pre><code>local
+    stats: STATISTICS
+    clean: CLEANED_STATISTICS
+    raw_data, clean_data: ARRAY [REAL_64]
+do
+    create stats.make
+    create clean.make
+
+    -- Remove invalid values
+    clean_data := clean.clean (raw_data)
+
+    -- Now safe to analyze
+    if clean_data.count > 0 then
+        print ("Mean: " + stats.mean (clean_data).out + "%N")
+    end</code></pre>
+
+            <h3>Precondition Handling</h3>
+            <p>All features have preconditions. Check them before calling:</p>
+            <pre><code>-- Check that data is not empty before calling mean
+if not data.is_empty then
+    avg := stats.mean (data)
+else
+    print ("Error: cannot compute mean of empty array%N")
+end
+
+-- Check that arrays have same length
+if x.count = y.count then
+    corr := stats.correlation (x, y)
+else
+    print ("Error: arrays must have same length%N")
+end</code></pre>
+
+            <h3>Numerical Stability</h3>
+            <p>The library uses numerically stable algorithms:</p>
+            <ul>
+                <li>Welford's algorithm for mean and variance (one pass, stable)</li>
+                <li>Kahan summation for sum (compensated addition)</li>
+                <li>Linear interpolation for percentiles</li>
+            </ul>
+            <p>These ensure accurate results even with extreme magnitudes or large datasets.</p>
+        </section>
+
+        <section id="contract-verification">
+            <h2>Contract Verification</h2>
+
+            <p>All features in simple_statistics are specified with Design by Contract. This means:</p>
+
+            <ul>
+                <li><strong>Preconditions (require):</strong> What must be true when calling the feature (e.g., data not empty)</li>
+                <li><strong>Postconditions (ensure):</strong> What is guaranteed to be true after execution</li>
+                <li><strong>Invariants:</strong> Properties that remain true throughout object lifetime</li>
+            </ul>
+
+            <p>Example from `mean`:</p>
+            <pre><code>mean (data: ARRAY [REAL_64]): REAL_64
+    require
+        data_not_empty: not data.is_empty
+    do
+        -- Implementation
+    ensure
+        result_is_average: True  -- result is the arithmetic mean
+    end</code></pre>
+
+            <p>These contracts are verified by the implementation and checked during testing. You can rely on them.</p>
+        </section>
+
+        <section id="next">
+            <h2>Next Steps</h2>
+            <ul>
+                <li><a href="quick.html"><strong>Quick API</strong></a> - Fast reference for common operations</li>
+                <li><a href="api-reference.html"><strong>API Reference</strong></a> - Complete documentation</li>
+                <li><a href="cookbook.html"><strong>Cookbook</strong></a> - More real-world examples and patterns</li>
+            </ul>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 Simple Eiffel Contributors. MIT License.</p>
+            <p><a href="index.html">Home</a> | <a href="https://github.com/simple-eiffel/simple_statistics">GitHub</a></p>
+        </footer>
+    </main>
+</body>
+</html>

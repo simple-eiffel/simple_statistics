@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>simple_statistics - Type-Safe Statistical Analysis for Eiffel</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>simple_statistics</h1>
+        <p class="tagline">Type-safe statistical analysis library for Eiffel</p>
+        <div class="badges">
+            <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License">
+            <img src="https://img.shields.io/badge/Eiffel-25.02-purple.svg" alt="Eiffel 25.02">
+            <img src="https://img.shields.io/badge/DBC-Contracts-green.svg" alt="Design by Contract">
+        </div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="quick.html">Quick API</a></li>
+            <li><a href="user-guide.html">User Guide</a></li>
+            <li><a href="api-reference.html">API Reference</a></li>
+            <li><a href="architecture.html">Architecture</a></li>
+            <li><a href="cookbook.html">Cookbook</a></li>
+            <li><a href="https://github.com/simple-eiffel/simple_statistics">GitHub</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="overview">
+            <h2>Overview</h2>
+            <p>
+                <strong>simple_statistics</strong> is a production-ready statistical analysis library for Eiffel.
+                It provides type-safe, verified implementations of descriptive statistics, correlation analysis,
+                linear regression, and hypothesis testing.
+            </p>
+            <p>
+                Every feature is specified with Design by Contract (require/ensure/invariant) and verified
+                through 43 comprehensive tests including adversarial and stress testing.
+            </p>
+            <p>
+                Part of the <a href="https://github.com/simple-eiffel">Simple Eiffel</a> ecosystem.
+            </p>
+        </section>
+
+        <section id="features">
+            <h2>Features</h2>
+            <ul>
+                <li><strong>Descriptive Statistics:</strong> mean, median, variance, standard deviation, percentiles, quartiles, mode</li>
+                <li><strong>Correlation & Covariance:</strong> Pearson correlation coefficient and covariance analysis</li>
+                <li><strong>Linear Regression:</strong> Ordinary least squares with R² and prediction capability</li>
+                <li><strong>Hypothesis Testing:</strong> t-tests (one-sample, two-sample, paired), chi-square, ANOVA</li>
+                <li><strong>Numerical Stability:</strong> Welford's algorithm, Kahan summation, careful computation</li>
+                <li><strong>Design by Contract:</strong> Full contract specification with verified postconditions</li>
+                <li><strong>Data Cleaning:</strong> Utilities to remove NaN and infinite values</li>
+            </ul>
+        </section>
+
+        <section id="status">
+            <h2>Status</h2>
+            <p><strong>v1.0.0 - Production Ready</strong></p>
+            <div class="success">
+                <strong>Quality Metrics:</strong>
+                <ul>
+                    <li>43 tests passing (100% pass rate)</li>
+                    <li>30 baseline tests + 13 adversarial tests</li>
+                    <li>Design by Contract throughout</li>
+                    <li>Void-safe implementation</li>
+                    <li>SCOOP compatible</li>
+                    <li>Zero compilation warnings</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="quick-start">
+            <h2>Quick Start</h2>
+            <p>See <a href="quick.html">Quick API Reference</a> for immediate examples.</p>
+
+            <h3>Basic Example</h3>
+            <pre><code>create stats.make
+data := {ARRAY [REAL_64]} << 1.0, 2.0, 3.0, 4.0, 5.0 >>
+
+-- Compute statistics
+avg := stats.mean (data)
+std := stats.std_dev (data)
+med := stats.median (data)</code></pre>
+
+            <p>For comprehensive documentation, start with the <a href="user-guide.html">User Guide</a>.</p>
+        </section>
+
+        <section id="installation">
+            <h2>Installation</h2>
+            <p>Add to your ECF configuration file:</p>
+            <pre><code>&lt;library name="simple_statistics" location="$SIMPLE_EIFFEL/simple_statistics/simple_statistics.ecf"/&gt;</code></pre>
+            <p>Then create and use in your Eiffel code:</p>
+            <pre><code>create stats.make
+result := stats.mean (your_data)</code></pre>
+        </section>
+
+        <section id="documentation">
+            <h2>Documentation</h2>
+            <ul>
+                <li><a href="quick.html"><strong>Quick API Reference</strong></a> - Five-minute overview</li>
+                <li><a href="user-guide.html"><strong>User Guide</strong></a> - Comprehensive tutorial with examples</li>
+                <li><a href="api-reference.html"><strong>API Reference</strong></a> - Complete class and feature documentation</li>
+                <li><a href="architecture.html"><strong>Architecture</strong></a> - Design decisions and structure</li>
+                <li><a href="cookbook.html"><strong>Cookbook</strong></a> - Real-world usage patterns and recipes</li>
+            </ul>
+        </section>
+
+        <section id="support">
+            <h2>Support & Community</h2>
+            <ul>
+                <li><strong>GitHub Repository:</strong> <a href="https://github.com/simple-eiffel/simple_statistics">simple-eiffel/simple_statistics</a></li>
+                <li><strong>Issue Tracker:</strong> <a href="https://github.com/simple-eiffel/simple_statistics/issues">Report bugs and request features</a></li>
+                <li><strong>Simple Eiffel:</strong> <a href="https://github.com/simple-eiffel">Visit the main ecosystem</a></li>
+            </ul>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 Simple Eiffel Contributors. MIT License.</p>
+            <p><a href="https://github.com/simple-eiffel/simple_statistics">GitHub Repository</a> | <a href="../CHANGELOG.md">Changelog</a></p>
+        </footer>
+    </main>
+</body>
+</html>

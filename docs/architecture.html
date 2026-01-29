@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architecture - simple_statistics</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>simple_statistics</h1>
+        <p class="tagline">Architecture &amp; Design</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="#design">Design</a></li>
+            <li><a href="#classes">Classes</a></li>
+            <li><a href="#algorithms">Algorithms</a></li>
+            <li><a href="api-reference.html">API Reference</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="design">
+            <h2>Design Principles</h2>
+
+            <h3>Facade Pattern</h3>
+            <p>STATISTICS is the main facade class that coordinates all statistical operations. This provides a single entry point and simplifies the API.</p>
+
+            <h3>Design by Contract</h3>
+            <p>Every feature includes formal contracts:</p>
+            <ul>
+                <li><strong>Preconditions (require):</strong> What callers must guarantee (non-empty arrays, matching lengths, etc.)</li>
+                <li><strong>Postconditions (ensure):</strong> What the implementation guarantees (range constraints, ordering, etc.)</li>
+                <li><strong>Invariants:</strong> Properties that hold throughout object lifetime</li>
+            </ul>
+
+            <h3>Immutable Results</h3>
+            <p>TEST_RESULT and REGRESSION_RESULT are immutable. Once created, their values cannot change. This ensures thread safety and simplifies reasoning about code.</p>
+
+            <h3>Numerical Stability</h3>
+            <p>All algorithms use numerically stable variants:</p>
+            <ul>
+                <li><strong>Welford's algorithm:</strong> For mean and variance - one-pass, no accumulation errors</li>
+                <li><strong>Kahan summation:</strong> For sum - compensated addition to reduce floating-point error</li>
+                <li><strong>Linear interpolation:</strong> For percentiles - stable computation</li>
+            </ul>
+        </section>
+
+        <section id="classes">
+            <h2>Class Structure</h2>
+
+            <h3>STATISTICS (Facade)</h3>
+            <p>Main entry point. Stateless - provides all statistical operations.</p>
+            <pre><code>Methods:
+- Descriptive Statistics: mean, median, variance, std_dev, etc.
+- Bivariate Analysis: covariance, correlation
+- Regression: linear_regression
+- Hypothesis Testing: t_test_*, chi_square_test, anova</code></pre>
+
+            <h3>TEST_RESULT (Data)</h3>
+            <p>Immutable result object from hypothesis tests. Contains test statistic, p-value, and degrees of freedom.</p>
+
+            <h3>REGRESSION_RESULT (Data)</h3>
+            <p>Immutable regression output. Contains slope, intercept, R², and prediction capability.</p>
+
+            <h3>ASSUMPTION_CHECK (Data)</h3>
+            <p>Documents validation of statistical test assumptions (normality, homogeneity of variance, etc.).</p>
+
+            <h3>CLEANED_STATISTICS (Utility)</h3>
+            <p>Data cleaning utility class. Removes NaN and infinite values from arrays.</p>
+        </section>
+
+        <section id="algorithms">
+            <h2>Key Algorithms</h2>
+
+            <h3>Mean Computation</h3>
+            <p><strong>Welford's Online Mean</strong></p>
+            <p>Computes the mean in a single pass while maintaining numerical stability:</p>
+            <pre><code>mean = 0
+for each x in data:
+    n = n + 1
+    mean = mean + (x - mean) / n</code></pre>
+
+            <h3>Variance Computation</h3>
+            <p><strong>Welford's Two-Pass Variance</strong></p>
+            <p>First pass: compute mean. Second pass: compute sum of squared deviations.</p>
+            <pre><code>sum_sq_dev = 0
+for each x in data:
+    sum_sq_dev += (x - mean)^2
+variance = sum_sq_dev / n</code></pre>
+
+            <h3>Sum Computation</h3>
+            <p><strong>Kahan Summation</strong></p>
+            <p>Compensated summation that tracks and corrects for floating-point rounding errors:</p>
+            <pre><code>sum = 0, compensation = 0
+for each x in data:
+    temp = x - compensation
+    sum = sum + temp
+    compensation = (sum - x) - temp</code></pre>
+
+            <h3>Percentile Computation</h3>
+            <p><strong>NIST R-7 Linear Interpolation</strong></p>
+            <p>After sorting: h = (p/100) * (n-1), then interpolate between floor(h) and ceil(h).</p>
+
+            <h3>Correlation</h3>
+            <p><strong>Pearson Correlation</strong></p>
+            <p>r = cov(x,y) / (std(x) * std(y)), bounded to [-1, 1].</p>
+
+            <h3>Linear Regression</h3>
+            <p><strong>Ordinary Least Squares</strong></p>
+            <p>Uses normal equations: slope = cov(x,y) / var(x), intercept = mean(y) - slope * mean(x).</p>
+
+            <h3>Hypothesis Tests</h3>
+            <p><strong>t-test:</strong> Computes t-statistic = (mean - mu) / (std_err). Dof = n-1 or Welch-Satterthwaite for two-sample.</p>
+            <p><strong>ANOVA:</strong> Computes F-statistic = MS_between / MS_within. Dof = groups - 1.</p>
+            <p><strong>Chi-square:</strong> Computes chi² = sum((O - E)² / E).</p>
+        </section>
+
+        <section id="dependencies">
+            <h2>Dependencies</h2>
+
+            <h3>External Libraries</h3>
+            <ul>
+                <li><strong>simple_math:</strong> For sqrt function (one method call)</li>
+            </ul>
+
+            <h3>ISE Eiffel Base Library</h3>
+            <ul>
+                <li>ARRAY for data storage</li>
+                <li>REAL_64 for numeric operations</li>
+                <li>HASH_TABLE for frequency counting in mode()</li>
+                <li>ARRAYED_LIST for data cleaning</li>
+            </ul>
+
+            <p>No external numerical libraries or scientific frameworks - everything is implemented from first principles.</p>
+        </section>
+
+        <section id="future">
+            <h2>Future Enhancements</h2>
+
+            <h3>Phase 2: Distribution CDFs</h3>
+            <p>Implement proper p-value computation for hypothesis tests:</p>
+            <ul>
+                <li>t-distribution CDF for t-tests</li>
+                <li>Chi-square distribution CDF</li>
+                <li>F-distribution CDF for ANOVA</li>
+            </ul>
+
+            <h3>Phase 3: Advanced Statistics</h3>
+            <ul>
+                <li>Multiple regression</li>
+                <li>Logistic regression</li>
+                <li>Non-parametric tests (Mann-Whitney U, Kruskal-Wallis, etc.)</li>
+                <li>Confidence intervals</li>
+            </ul>
+
+            <h3>Phase 4: Matrix Operations</h3>
+            <ul>
+                <li>Matrix algebra for multivariate analysis</li>
+                <li>Principal component analysis (PCA)</li>
+                <li>Factor analysis</li>
+            </ul>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 Simple Eiffel Contributors. MIT License.</p>
+            <p><a href="index.html">Home</a> | <a href="https://github.com/simple-eiffel/simple_statistics">GitHub</a></p>
+        </footer>
+    </main>
+</body>
+</html>

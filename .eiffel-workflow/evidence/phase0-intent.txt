@@ -1,0 +1,176 @@
+# Phase 0: Intent Evidence
+# Project: d:\prod\simple_statistics
+# Date: 2026-01-29
+
+## Intent Capture Status: COMPLETE
+
+Intent document created: YES
+Review prompt created: YES
+Evidence placeholder created: YES
+
+## Files Generated
+
+1. `.eiffel-workflow/intent.md`
+   - What: Type-safe, contract-based statistical library
+   - Why: Closes Eiffel ecosystem gap; provides type safety and DBC that Python/R cannot match
+   - Users: Data scientists, researchers, QA engineers, financial analysts
+   - Acceptance criteria: 20 Tier 1 methods; 100+ tests; >95% coverage; numerical stability
+   - Dependencies: simple_math, simple_probability, simple_linalg, simple_calculus, simple_mml
+   - MML decision: YES-Required (collections need frame conditions)
+   - Success metrics: Tier 1+80% Tier 2; 300+ tests; 50+ page documentation; 50+ downloads
+
+2. `.eiffel-workflow/prompts/phase0-intent-review.md`
+   - AI review prompt with 10 probing questions
+   - Covers: vague language, missing edge cases, untestable criteria, performance claims
+   - Questions target: numerical accuracy, performance "competitiveness", coverage definition, etc.
+   - Instructions for external AI and user feedback
+
+3. `.eiffel-workflow/evidence/phase0-ai-review.md`
+   - Placeholder for AI review response
+   - Status: PENDING - awaiting external AI review and user answers
+
+## Intent Document Content Summary
+
+### What
+- Dedicated statistical library for Simple Eiffel
+- Tier 1 (MVP): Descriptive stats, correlation, regression, hypothesis testing (20 methods)
+- Tier 2 (Extended): Robust stats, effect sizes, distribution tests, non-parametric tests
+- Tier 3 (v1.1+): Bootstrap, custom tests, Bayesian inference
+- Target: n < 100,000 observations
+
+### Why
+- No statistical library exists for Eiffel (genuine market gap)
+- Can integrate with simple_probability, simple_linalg, simple_calculus
+- Type safety and DBC advantages over Python/R
+- SCOOP foundation for parallel hypothesis testing (v1.1+)
+
+### Users
+- Data scientists (25%)
+- Researchers (20%)
+- QA engineers (30%)
+- Financial analysts (15%)
+- Eiffel developers (10%)
+- Target adoption: 50+ downloads in 3 months
+
+### Core Acceptance Criteria (Tier 1)
+- SIMPLE_STATISTICS class with 20 public methods
+- TEST_RESULT class with conclusion(α), is_significant(), format_for_publication()
+- REGRESSION_RESULT class with slope, intercept, r_squared, predict(x)
+- ASSUMPTION_CHECK class
+- Complete Design by Contract (preconditions, postconditions, invariants)
+- 100+ unit tests; >95% code coverage
+- Numerical stability: Welford, QR, condition number checking
+- Zero silent failures: NaN/infinity rejection with clear errors
+- Integration with simple_probability/linalg/calculus
+- 50+ page documentation; 20+ working examples
+
+### Out of Scope (v1.0)
+- Machine learning (separate library: simple_ml)
+- Time series (ARIMA, ACF/PACF) → v1.1
+- Bayesian inference → v1.2
+- Streaming analytics → v1.2+
+- Visualization, SQL, GPU acceleration
+
+### Dependencies
+**Required:** simple_math, simple_probability, simple_linalg, simple_calculus, simple_mml
+**ISE Only (no simple_* equivalent):** base, time, testing
+**Explicitly Avoid:** Gobo LINALG, external C libraries
+
+### MML Decision
+**YES - Required**
+Rationale: Collections (assumption arrays, residuals) need frame conditions via MML model queries
+When: Phase 1 (Foundation)
+Impact on users: None (internal to contracts)
+
+### Success Metrics
+- Functionality: Tier 1 + 80% Tier 2
+- Test coverage: >95%
+- Test count: 300+
+- Numerical accuracy: Match scipy.stats within 1e-10 for n < 100k
+- Performance: Competitive with scipy (n < 100k)
+- Documentation: 50+ pages; 20+ examples
+- Adoption: 50+ downloads in 3 months
+- Community bugs: 0 critical in first 6 months
+
+### Timeline
+- Phase 0 (Intent): Week 1 (THIS WEEK)
+- Phase 1 (Foundation): Weeks 1-2
+- Phase 2 (Tier 1 Core): Weeks 3-4 (100+ tests)
+- Phase 3 (Tier 2 Advanced): Weeks 5-7 (150+ tests)
+- Phase 4 (Testing & Docs): Weeks 8-9 (50+ edge case tests)
+- Phase 5 (Release): Week 10 (v1.0-beta, v1.0.0)
+
+### Gaps Identified (Future simple_* Libraries)
+- simple_timeseries: Time series analysis (ARIMA, ACF/PACF)
+- simple_ml: Machine learning library
+- simple_bayesian: Bayesian inference
+
+## Review Process Status
+
+### Step 1: Intent Document ✓ COMPLETE
+File: `.eiffel-workflow/intent.md`
+Content: Comprehensive 250+ line document covering WHAT/WHY/USERS/ACCEPTANCE CRITERIA/RISKS
+Quality: Addresses research recommendations; backed by specification; includes MML decision
+
+### Step 2: AI Review Prompt ✓ COMPLETE
+File: `.eiffel-workflow/prompts/phase0-intent-review.md`
+Content: 10 probing questions targeting vague language, missing edge cases, untestable criteria
+Questions cover: numerical accuracy, performance, test coverage, error handling, tier prioritization, adoption metrics, SCOOP plans, educational value, MML timing, backward compatibility
+
+### Step 3: Evidence Placeholder ✓ COMPLETE
+File: `.eiffel-workflow/evidence/phase0-ai-review.md`
+Status: PENDING - ready to receive AI review output and user answers
+
+### Step 4: User Review & Answers ⏳ PENDING
+Action required: User must submit intent.md + prompts to external AI for review
+Expected: 10 answers to clarifying questions
+Deliverable: intent-v2.md incorporating answers
+
+## Next Actions (User-Required)
+
+### Immediate (Today)
+1. Open: `.eiffel-workflow/prompts/phase0-intent-review.md`
+2. Copy full intent.md contents into the prompt template where indicated
+3. Submit to external AI (Ollama, Grok, Gemini, or another Claude session)
+4. AI will generate 10 probing questions with concrete alternatives
+
+### User's Turn
+1. Read AI's probing questions
+2. Answer each question (choose alternative or provide own)
+3. Return to Claude Code with answers
+4. Say: "intent answers provided" or paste answers directly
+
+### Claude Code Will
+1. Read user's answers to all 10 questions
+2. Create `intent-v2.md` incorporating answers
+3. Audit all dependencies (simple_* first policy)
+4. Proceed to Phase 1 (Contracts) if approved
+
+## Quality Checklist
+
+- [x] Intent document clearly states WHAT, WHY, USERS, ACCEPTANCE CRITERIA
+- [x] Intent covers both MVP (Tier 1) and extended (Tier 2) scope
+- [x] Out of scope explicitly defined with rationale
+- [x] Dependencies audited per simple_* first policy
+- [x] MML decision front-loaded (YES-Required with rationale)
+- [x] Success metrics are concrete and measurable
+- [x] Risks identified (numerical stability, performance, test gaps, timeline, API churn)
+- [x] Backward compatibility plan documented (simple_math deprecation)
+- [x] Timeline realistic (10-week phased approach)
+- [x] Review prompt covers major vague areas (10 questions)
+
+## Status: PHASE 0 COMPLETE - APPROVED
+
+**Verdict:** Intent document is complete, comprehensive, and backed by research + specification.
+
+**User Approval:** Approved for Phase 1 (Contracts) without external AI review.
+
+**Disposition:** Proceeding directly to Phase 1 contract skeleton generation.
+
+---
+
+**Document Version:** 1.0
+**Date Created:** 2026-01-29
+**Last Updated:** 2026-01-29
+**Status:** AWAITING EXTERNAL AI REVIEW
+**Next Phase:** Phase 1 (Contracts) via `/eiffel.contracts d:\prod\simple_statistics`

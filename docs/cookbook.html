@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookbook - simple_statistics</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>simple_statistics</h1>
+        <p class="tagline">Code Recipes &amp; Patterns</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="#recipes">Recipes</a></li>
+            <li><a href="#patterns">Patterns</a></li>
+            <li><a href="user-guide.html">User Guide</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="recipes">
+            <h2>Code Recipes</h2>
+
+            <h3>Recipe 1: Outlier Detection</h3>
+            <p>Detect values more than 3 standard deviations from the mean:</p>
+            <pre><code>local
+    stats: STATISTICS
+    data: ARRAY [REAL_64]
+    mean_val, std_val: REAL_64
+    i: INTEGER
+do
+    create stats.make
+    mean_val := stats.mean (data)
+    std_val := stats.std_dev (data)
+
+    from i := data.lower until i > data.upper loop
+        if (data[i] - mean_val).abs > 3 * std_val then
+            print ("Outlier detected at index " + i.out + ": " + data[i].out + "%N")
+        end
+        i := i + 1
+    end</code></pre>
+
+            <h3>Recipe 2: Group Comparison</h3>
+            <p>Compare two groups and report if they differ significantly:</p>
+            <pre><code>local
+    stats: STATISTICS
+    control, treatment: ARRAY [REAL_64]
+    result: TEST_RESULT
+do
+    create stats.make
+    result := stats.t_test_two_sample (control, treatment)
+
+    print ("Control mean: " + stats.mean (control).out + "%N")
+    print ("Treatment mean: " + stats.mean (treatment).out + "%N")
+    print ("t-statistic: " + result.statistic.out + "%N")
+
+    if result.is_significant (0.05) then
+        print ("RESULT: Treatment has significant effect (p < 0.05)%N")
+    else
+        print ("RESULT: No significant difference (p >= 0.05)%N")
+    end</code></pre>
+
+            <h3>Recipe 3: Relationship Strength</h3>
+            <p>Measure how strongly two variables are related:</p>
+            <pre><code>local
+    stats: STATISTICS
+    var1, var2: ARRAY [REAL_64]
+    corr: REAL_64
+do
+    create stats.make
+    corr := stats.correlation (var1, var2)
+
+    if corr > 0.9 then
+        print ("Very strong positive relationship%N")
+    elseif corr > 0.7 then
+        print ("Strong positive relationship%N")
+    elseif corr > 0.5 then
+        print ("Moderate positive relationship%N")
+    elseif corr > 0.3 then
+        print ("Weak positive relationship%N")
+    elseif corr > -0.3 then
+        print ("No relationship%N")
+    elseif corr > -0.5 then
+        print ("Weak negative relationship%N")
+    else
+        print ("Strong negative relationship%N")
+    end</code></pre>
+
+            <h3>Recipe 4: Prediction from Model</h3>
+            <p>Build a model and make predictions for new data:</p>
+            <pre><code>local
+    stats: STATISTICS
+    x_training, y_training: ARRAY [REAL_64]
+    x_new: REAL_64
+    result: REGRESSION_RESULT
+    y_predicted: REAL_64
+do
+    create stats.make
+
+    -- Build regression model on training data
+    result := stats.linear_regression (x_training, y_training)
+
+    -- Print model
+    print ("Model: y = " + result.slope.out + " * x + " + result.intercept.out + "%N")
+    print ("R-squared: " + result.r_squared.out + "%N")
+
+    -- Make prediction for new x value
+    x_new := 42.0
+    y_predicted := result.predict (x_new)
+    print ("Prediction for x=" + x_new.out + ": y=" + y_predicted.out + "%N")</code></pre>
+
+            <h3>Recipe 5: Data Quality Assessment</h3>
+            <p>Assess and clean data with issues:</p>
+            <pre><code>local
+    stats: STATISTICS
+    clean: CLEANED_STATISTICS
+    raw_data, clean_data: ARRAY [REAL_64]
+do
+    create stats.make
+    create clean.make
+
+    -- Assess raw data
+    print ("Original data size: " + raw_data.count.out + "%N")
+    if clean.has_nan (raw_data) then
+        print ("WARNING: Data contains NaN values%N")
+    end
+    if clean.has_infinite (raw_data) then
+        print ("WARNING: Data contains infinite values%N")
+    end
+
+    -- Clean data
+    clean_data := clean.clean (raw_data)
+    print ("Cleaned data size: " + clean_data.count.out + "%N")
+    print ("Removed " + (raw_data.count - clean_data.count).out + " invalid entries%N")
+
+    -- Proceed with analysis
+    if clean_data.count >= 2 then
+        print ("Mean of clean data: " + stats.mean (clean_data).out + "%N")
+    end</code></pre>
+        </section>
+
+        <section id="patterns">
+            <h2>Design Patterns</h2>
+
+            <h3>Pattern 1: Exploratory Data Analysis (EDA)</h3>
+            <p>Quick summary of a dataset:</p>
+            <pre><code>local
+    stats: STATISTICS
+    data: ARRAY [REAL_64]
+do
+    create stats.make
+
+    print ("=== Data Summary ===%N")
+    print ("Count: " + data.count.out + "%N")
+    print ("Min: " + stats.min_value (data).out + "%N")
+    print ("Q1: " + stats.quartiles (data)[1].out + "%N")
+    print ("Median: " + stats.median (data).out + "%N")
+    print ("Mean: " + stats.mean (data).out + "%N")
+    print ("Q3: " + stats.quartiles (data)[3].out + "%N")
+    print ("Max: " + stats.max_value (data).out + "%N")
+    print ("Std Dev: " + stats.std_dev (data).out + "%N")</code></pre>
+
+            <h3>Pattern 2: Hypothesis Testing Pipeline</h3>
+            <p>Standardized workflow for statistical testing:</p>
+            <pre><code>1. Formulate hypothesis (null and alternative)
+2. Collect data and choose alpha level (e.g., 0.05)
+3. Check assumptions (normality, equal variance)
+4. Run appropriate test
+5. Interpret results based on p-value
+6. Report conclusions</code></pre>
+
+            <h3>Pattern 3: Model Validation</h3>
+            <p>Use train/test split for regression:</p>
+            <pre><code>-- Split data into training (80%) and test (20%)
+-- Train model on training set
+-- Evaluate R-squared on test set
+-- If R-squared is high, model generalizes well</code></pre>
+
+            <h3>Pattern 4: Multiple Comparisons</h3>
+            <p>When comparing many groups, use ANOVA instead of multiple t-tests to control Type I error.</p>
+        </section>
+
+        <section id="troubleshooting">
+            <h2>Troubleshooting</h2>
+
+            <h3>Q: I get a precondition violation</h3>
+            <p>A: Check preconditions before calling features. Example: mean() requires non-empty data. Always verify array.count > 0.</p>
+
+            <h3>Q: My correlation is NaN</h3>
+            <p>A: This happens when variance is zero (all values identical). Check your data and handle this edge case.</p>
+
+            <h3>Q: R-squared is negative</h3>
+            <p>A: This shouldn't happen in v1.0 - it's clamped to [0, 1]. If you see it, report a bug.</p>
+
+            <h3>Q: P-values are always 0.5</h3>
+            <p>A: Yes - in v1.0, p-values are placeholders. This will be fixed when distribution CDFs are implemented.</p>
+
+            <h3>Q: Data cleaning lost too much data</h3>
+            <p>A: Use remove_nan and remove_infinite separately to see which values are problematic. Investigate why data has NaN/infinite values.</p>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 Simple Eiffel Contributors. MIT License.</p>
+            <p><a href="index.html">Home</a> | <a href="https://github.com/simple-eiffel/simple_statistics">GitHub</a></p>
+        </footer>
+    </main>
+</body>
+</html>

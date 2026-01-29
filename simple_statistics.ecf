@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<system xmlns="http://www.eiffel.com/developers/xml/configuration/19" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration/19 http://www.eiffel.com/developers/xml/configuration/19/configuration.xsd" name="simple_statistics" uuid="6A5D1E5C-3B4E-4F2A-9C6E-2D8A1B9E5F7C">
+	<description>Type-safe, contract-based statistical library for the Simple Eiffel ecosystem</description>
+	<target name="simple_statistics">
+		<description>Core statistical operations library (Tier 1 + Tier 2)</description>
+		<root all_classes="true"/>
+		<file_rule>
+			<exclude>/\.git$</exclude>
+			<exclude>/EIFGENs$</exclude>
+			<exclude>/(\.svn|\.hg|CVS)$</exclude>
+		</file_rule>
+		<capability>
+			<concurrency support="scoop"/>
+			<void_safety support="all"/>
+		</capability>
+		<option full_class_checking="false" is_attached_by_default="true"/>
+		<library name="base" location="$ISE_LIBRARY/library/base/base.ecf"/>
+		<library name="simple_math" location="$SIMPLE_EIFFEL/simple_math/simple_math.ecf"/>
+		<library name="simple_mml" location="$SIMPLE_EIFFEL/simple_mml/simple_mml.ecf"/>
+		<cluster name="simple_statistics" location="src" recursive="true"/>
+	</target>
+	<target name="simple_statistics_tests">
+		<description>Unit tests for simple_statistics library</description>
+		<root class="TEST_APP" feature="make" all_classes="false"/>
+		<file_rule>
+			<exclude>/\.git$</exclude>
+			<exclude>/EIFGENs$</exclude>
+			<exclude>/(\.svn|\.hg|CVS)$</exclude>
+		</file_rule>
+		<capability>
+			<concurrency support="scoop"/>
+			<void_safety support="all"/>
+		</capability>
+		<option full_class_checking="false" is_attached_by_default="true"/>
+		<library name="base" location="$ISE_LIBRARY/library/base/base.ecf"/>
+		<library name="testing" location="$ISE_LIBRARY/library/testing/testing.ecf"/>
+		<library name="simple_testing" location="$SIMPLE_EIFFEL/simple_testing/simple_testing.ecf"/>
+		<library name="simple_math" location="$SIMPLE_EIFFEL/simple_math/simple_math.ecf"/>
+		<library name="simple_mml" location="$SIMPLE_EIFFEL/simple_mml/simple_mml.ecf"/>
+		<cluster name="simple_statistics" location="src" recursive="true"/>
+		<cluster name="tests" location="test" recursive="true"/>
+	</target>
+</system>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick API Reference - simple_statistics</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>simple_statistics</h1>
+        <p class="tagline">Quick API Reference</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="#descriptive">Descriptive</a></li>
+            <li><a href="#correlation">Correlation</a></li>
+            <li><a href="#regression">Regression</a></li>
+            <li><a href="#hypothesis">Hypothesis</a></li>
+            <li><a href="user-guide.html">Full Guide</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="descriptive">
+            <h2>Descriptive Statistics</h2>
+
+            <h3>Basic Setup</h3>
+            <pre><code>local
+    stats: STATISTICS
+    data: ARRAY [REAL_64]
+do
+    create stats.make
+    data := {ARRAY [REAL_64]} << 1.0, 2.0, 3.0, 4.0, 5.0 >></code></pre>
+
+            <h3>Central Tendency</h3>
+            <pre><code>mean_val := stats.mean (data)        -- Arithmetic mean
+median_val := stats.median (data)    -- 50th percentile
+mode_val := stats.mode (data)        -- Most frequent value</code></pre>
+
+            <h3>Dispersion</h3>
+            <pre><code>variance := stats.variance (data)    -- Population variance
+std_dev := stats.std_dev (data)      -- Standard deviation
+range := stats.range (data)          -- Max - Min
+min := stats.min_value (data)        -- Minimum
+max := stats.max_value (data)        -- Maximum</code></pre>
+
+            <h3>Quantiles</h3>
+            <pre><code>p50 := stats.percentile (data, 50.0)    -- 50th percentile
+p95 := stats.percentile (data, 95.0)    -- 95th percentile
+q := stats.quartiles (data)             -- [Q1, Q2, Q3]
+-- q[1] = 25th percentile, q[2] = median, q[3] = 75th percentile</code></pre>
+
+            <h3>Summation</h3>
+            <pre><code>total := stats.sum (data)       -- Sum using Kahan summation</code></pre>
+        </section>
+
+        <section id="correlation">
+            <h2>Correlation & Covariance</h2>
+
+            <pre><code>local
+    x, y: ARRAY [REAL_64]
+do
+    x := {ARRAY [REAL_64]} << 1.0, 2.0, 3.0, 4.0, 5.0 >>
+    y := {ARRAY [REAL_64]} << 2.0, 4.0, 6.0, 8.0, 10.0 >>
+
+    cov := stats.covariance (x, y)      -- Covariance
+    corr := stats.correlation (x, y)    -- Pearson r in [-1, 1]</code></pre>
+
+            <div class="note">
+                <strong>Note:</strong> Correlation is symmetric: corr(x,y) = corr(y,x).
+                Perfect positive correlation = 1.0, perfect negative = -1.0.
+            </div>
+        </section>
+
+        <section id="regression">
+            <h2>Linear Regression</h2>
+
+            <pre><code>local
+    result: REGRESSION_RESULT
+do
+    result := stats.linear_regression (x, y)
+
+    -- Access results
+    slope := result.slope
+    intercept := result.intercept
+    r_squared := result.r_squared        -- R² in [0, 1]
+
+    -- Make prediction
+    predicted_y := result.predict (new_x)</code></pre>
+
+            <div class="note">
+                <strong>Note:</strong> R² indicates fit quality. R² = 1.0 is perfect fit, R² = 0.0 is no linear relationship.
+            </div>
+        </section>
+
+        <section id="hypothesis">
+            <h2>Hypothesis Testing</h2>
+
+            <h3>One-Sample t-test</h3>
+            <pre><code>result := stats.t_test_one_sample (data, 3.0)  -- Test if mean = 3.0
+t_stat := result.statistic
+p_value := result.p_value
+dof := result.degrees_of_freedom</code></pre>
+
+            <h3>Two-Sample t-test</h3>
+            <pre><code>result := stats.t_test_two_sample (group1, group2)
+if result.is_significant (0.05) then
+    print ("Groups significantly different at 0.05 level%N")
+end</code></pre>
+
+            <h3>Paired t-test</h3>
+            <pre><code>result := stats.t_test_paired (before, after)  -- Test if mean(before - after) = 0</code></pre>
+
+            <h3>Chi-Square Test</h3>
+            <pre><code>observed := {ARRAY [REAL_64]} << 10.0, 15.0, 20.0 >>
+expected := {ARRAY [REAL_64]} << 12.0, 12.0, 21.0 >>
+result := stats.chi_square_test (observed, expected)</code></pre>
+
+            <h3>ANOVA</h3>
+            <pre><code>local
+    groups: ARRAY [ARRAY [REAL_64]]
+do
+    create groups.make_filled (create {ARRAY [REAL_64]}.make_empty, 1, 3)
+    groups[1] := {ARRAY [REAL_64]} << 1.0, 2.0, 3.0 >>
+    groups[2] := {ARRAY [REAL_64]} << 4.0, 5.0, 6.0 >>
+    groups[3] := {ARRAY [REAL_64]} << 7.0, 8.0, 9.0 >>
+
+    result := stats.anova (groups)
+    if result.conclusion (0.05) then
+        print ("Significant difference among groups%N")
+    end</code></pre>
+
+            <div class="warning">
+                <strong>Note:</strong> P-values are currently placeholders (0.5). They will be computed correctly
+                when distribution CDFs are implemented.
+            </div>
+        </section>
+
+        <section id="utilities">
+            <h2>Data Cleaning</h2>
+
+            <pre><code>local
+    clean: CLEANED_STATISTICS
+    dirty_data, clean_data: ARRAY [REAL_64]
+do
+    create clean.make
+
+    -- Remove NaN and infinite values
+    clean_data := clean.clean (dirty_data)
+
+    -- Or individually
+    clean_data := clean.remove_nan (dirty_data)
+    clean_data := clean.remove_infinite (dirty_data)</code></pre>
+        </section>
+
+        <section id="test-results">
+            <h2>Test Result Objects</h2>
+
+            <h3>TEST_RESULT</h3>
+            <pre><code>-- Returned by: t_test_*, chi_square_test, anova
+result.statistic                    -- Test statistic
+result.p_value                      -- P-value (0 to 1)
+result.degrees_of_freedom           -- dof for distribution
+result.is_significant (alpha)       -- Boolean test at alpha level
+result.conclusion (alpha)           -- Boolean for p < alpha</code></pre>
+
+            <h3>REGRESSION_RESULT</h3>
+            <pre><code>-- Returned by: linear_regression
+result.slope                        -- Regression slope (y = slope*x + intercept)
+result.intercept                    -- Y-intercept
+result.r_squared                    -- R² in [0, 1]
+result.predict (x)                  -- Predict y for new x</code></pre>
+        </section>
+
+        <section id="next">
+            <h2>Next Steps</h2>
+            <ul>
+                <li><a href="user-guide.html"><strong>User Guide</strong></a> - In-depth tutorials with more examples</li>
+                <li><a href="api-reference.html"><strong>API Reference</strong></a> - Complete documentation for all classes</li>
+                <li><a href="cookbook.html"><strong>Cookbook</strong></a> - Real-world usage patterns and recipes</li>
+            </ul>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 Simple Eiffel Contributors. MIT License.</p>
+            <p><a href="index.html">Home</a> | <a href="https://github.com/simple-eiffel/simple_statistics">GitHub</a></p>
+        </footer>
+    </main>
+</body>
+</html>

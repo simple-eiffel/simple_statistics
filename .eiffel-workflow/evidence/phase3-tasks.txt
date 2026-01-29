@@ -1,0 +1,116 @@
+# Phase 3 Task Evidence
+# Project: d:\prod\simple_statistics
+# Date: 2026-01-29
+
+## Task Breakdown Complete
+
+Tasks created: 23
+Dependency groups: 5 sequential phases
+Estimated effort: 5 weeks (1 feature per day + distribution CDF work)
+
+## Task Categories
+
+### Phase 1: Foundation (3 tasks)
+✓ Task 1: Min/Max/Range
+✓ Task 2: Mean
+✓ Task 3: Sum
+
+### Phase 2: Descriptive Statistics (6 tasks)
+✓ Task 4: Variance
+✓ Task 5: Standard Deviation
+✓ Task 6: Median
+✓ Task 7: Percentile
+✓ Task 8: Quartiles
+✓ Task 9: Mode
+
+### Phase 3: Bivariate Analysis (3 tasks)
+✓ Task 10: Covariance
+✓ Task 11: Correlation
+✓ Task 12: Linear Regression
+
+### Phase 4: Hypothesis Testing - Parametric (5 tasks)
+✓ Task 13: One-Sample t-test (blocked by Task 18)
+✓ Task 14: Two-Sample t-test (blocked by Task 18)
+✓ Task 15: Paired t-test (depends on Task 13)
+✓ Task 16: Chi-Square Test (blocked by Task 19)
+✓ Task 17: One-Way ANOVA (blocked by Task 20)
+
+### Phase 5: Critical Dependencies - Distribution CDFs (3 tasks)
+✓ Task 18: t-distribution CDF (CRITICAL - blocks 13, 14, 15)
+✓ Task 19: χ²-distribution CDF (CRITICAL - blocks 16)
+✓ Task 20: F-distribution CDF (CRITICAL - blocks 17)
+
+### Phase 5: Utilities & Polish (3 tasks)
+✓ Task 21: Data Cleaning Methods
+✓ Task 22: Assumption Checking
+✓ Task 23: Result Formatting
+
+## Dependencies Identified
+
+Critical Path (blocking):
+- Distribution CDF functions (Tasks 18, 19, 20) must complete before hypothesis tests finalize
+
+Dependency Groups:
+- Group 1 (Foundation): Tasks 1-3 (no dependencies)
+- Group 2 (Descriptive): Tasks 4-9 (depend on 1-2)
+- Group 3 (Bivariate): Tasks 10-12 (depend on 2-5)
+- Group 4 (Hypothesis): Tasks 13-17 (depend on previous + distribution CDFs)
+- Group 5 (Utilities): Tasks 21-23 (optional/polish)
+
+## Task Sizing
+
+- Small tasks (0.5 day): 1, 3, 5, 8, 15, 23
+- Medium tasks (1 day): 2, 4, 6, 7, 9, 10, 11, 13, 14, 16, 21, 22
+- Large tasks (1.5+ days): 12, 17, 18, 19, 20
+
+## Test Coverage
+
+Each task references affected unit tests in TEST_STATISTICS:
+- Task 1: (none - foundation only)
+- Task 2: test_mean_single_value, test_mean_multiple_values, test_mean_negative_values
+- Task 11: test_correlation_perfect_positive, test_correlation_in_range
+- Task 12: test_linear_regression_simple, test_regression_result_predict
+- Task 13: test_t_test_one_sample
+- Task 14: test_t_test_two_sample
+- Task 15: test_t_test_paired
+- Task 16: test_chi_square_test
+- Task 17: test_anova
+
+Tests to be completed in Phase 5.
+
+## Contracts Enforced
+
+Each task includes postcondition verification:
+- Descriptive stats: Non-negativity, range constraints, element membership
+- Bivariate: Correlation in [-1, 1]
+- Regression: R² in [0, 1]
+- Hypothesis tests: p-value in [0, 1], dof constraints
+- ANOVA: dof = groups.count - 1
+
+## Critical Decisions
+
+1. **Numerical Stability First**: All algorithms use stable variants
+   - Welford's algorithm for mean/variance (not naive)
+   - Kahan summation for sum (not naive float addition)
+   - QR decomposition for regression (not normal equations)
+
+2. **Distribution CDFs**: Deferred to Phase 5
+   - Can use simple_probability if available
+   - Or implement series approximation
+   - Placeholder 0.5 acceptable for initial Task 13-17 structuring
+
+3. **Assumption Checking**: Optional enhancement
+   - Normality tests (Task 22)
+   - Equal variance tests
+   - Populated in test result objects
+
+4. **Data Cleaning**: Utility task
+   - Not required for core functionality
+   - Can defer to Phase 5 if needed
+
+## Human Approval
+
+Status: PENDING - Awaiting user approval
+
+Next: /eiffel.implement d:\prod\simple_statistics to write feature bodies
+

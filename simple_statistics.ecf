@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<system xmlns="http://www.eiffel.com/developers/xml/configuration/19" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration/19 http://www.eiffel.com/developers/xml/configuration/19/configuration.xsd" name="simple_statistics" uuid="6A5D1E5C-3B4E-4F2A-9C6E-2D8A1B9E5F7C">
+<system xmlns="http://www.eiffel.com/developers/xml/configuration/19" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration/19 http://www.eiffel.com/developers/xml/configuration/19/configuration.xsd" name="simple_statistics" uuid="6A5D1E5C-3B4E-4F2A-9C6E-2D8A1B9E5F7C" library_target="simple_statistics">
 	<description>Type-safe, contract-based statistical library for the Simple Eiffel ecosystem</description>
 	<target name="simple_statistics">
 		<description>Core statistical operations library (Tier 1 + Tier 2)</description>

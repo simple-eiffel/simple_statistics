@@ -19,50 +19,50 @@ feature {NONE} -- Initialization
 
 feature -- Descriptive Statistics
 
-	mean (data: ARRAY [REAL_64]): REAL_64
+	mean (a_data: ARRAY [REAL_64]): REAL_64
 			-- Arithmetic mean using numerically stable summation.
 		require
-			data_not_empty: not data.is_empty
+			data_not_empty: not a_data.is_empty
 		local
 			mean_val: REAL_64
 			count: INTEGER
 		do
 			mean_val := 0.0
 			count := 0
-			across data as ic loop
+			across a_data as ic loop
 				count := count + 1
 				mean_val := mean_val + (ic.item - mean_val) / count
 			end
 			Result := mean_val
 		ensure
-			result_is_average: True  -- result is average of all data points
+			result_is_average: True  -- result is average of all a_data points
 		end
 
-	median (data: ARRAY [REAL_64]): REAL_64
+	median (a_data: ARRAY [REAL_64]): REAL_64
 			-- Middle value (50th percentile).
 		require
-			data_not_empty: not data.is_empty
+			data_not_empty: not a_data.is_empty
 		do
-			Result := percentile (data, 50.0)
+			Result := percentile (a_data, 50.0)
 		ensure
 			result_is_median: True  -- result is 50th percentile
 		end
 
-	mode (data: ARRAY [REAL_64]): REAL_64
+	mode (a_data: ARRAY [REAL_64]): REAL_64
 			-- Most frequent value (may not be unique for multimodal data).
 			-- For continuous data with no repeats, returns one value from data.
 		require
-			data_not_empty: not data.is_empty
+			data_not_empty: not a_data.is_empty
 		local
 			frequency_map: HASH_TABLE [INTEGER, REAL_64]
 			max_freq: INTEGER
 			mode_val: REAL_64
 		do
-			create frequency_map.make (data.count)
+			create frequency_map.make (a_data.count)
 			max_freq := 0
-			mode_val := data[data.lower]
+			mode_val := a_data[a_data.lower]
 
-			across data as ic loop
+			across a_data as ic loop
 				if frequency_map.has (ic.item) then
 					frequency_map[ic.item] := frequency_map[ic.item] + 1
 				else
@@ -77,46 +77,46 @@ feature -- Descriptive Statistics
 
 			Result := mode_val
 		ensure
-			result_in_data: data.has (Result)
+			result_in_data: a_data.has (Result)
 		end
 
-	variance (data: ARRAY [REAL_64]): REAL_64
+	variance (a_data: ARRAY [REAL_64]): REAL_64
 			-- Population variance using Welford's algorithm (numerically stable).
 		require
-			data_not_empty: not data.is_empty
+			data_not_empty: not a_data.is_empty
 		local
 			mean_val: REAL_64
 			sum_sq_dev: REAL_64
 		do
-			mean_val := mean (data)
+			mean_val := mean (a_data)
 			sum_sq_dev := 0.0
-			across data as ic loop
+			across a_data as ic loop
 				sum_sq_dev := sum_sq_dev + (ic.item - mean_val) * (ic.item - mean_val)
 			end
-			Result := sum_sq_dev / data.count
+			Result := sum_sq_dev / a_data.count
 		ensure
 			result_non_negative: Result >= 0.0
 		end
 
-	std_dev (data: ARRAY [REAL_64]): REAL_64
+	std_dev (a_data: ARRAY [REAL_64]): REAL_64
 			-- Standard deviation = sqrt(variance).
 		require
-			data_not_empty: not data.is_empty
+			data_not_empty: not a_data.is_empty
 		local
 			var: REAL_64
 			math: SIMPLE_MATH
 		do
-			var := variance (data)
+			var := variance (a_data)
 			create math.make
 			Result := math.sqrt (var)
 		ensure
 			result_non_negative: Result >= 0.0
 		end
 
-	percentile (data: ARRAY [REAL_64]; p: REAL_64): REAL_64
+	percentile (a_data: ARRAY [REAL_64]; p: REAL_64): REAL_64
 			-- p-th percentile where p ∈ [0, 100].
 		require
-			data_not_empty: not data.is_empty
+			data_not_empty: not a_data.is_empty
 			percentile_valid: p >= 0.0 and p <= 100.0
 		local
 			sorted: ARRAY [REAL_64]
@@ -128,7 +128,7 @@ feature -- Descriptive Statistics
 			temp: REAL_64
 		do
 			-- Create sorted copy of data using bubble sort
-			create sorted.make_from_array (data)
+			create sorted.make_from_array (a_data)
 
 			-- Simple bubble sort
 			from i := sorted.lower until i >= sorted.upper loop
@@ -158,70 +158,70 @@ feature -- Descriptive Statistics
 						  sorted[sorted.lower + h_ceil] * fraction
 			end
 		ensure
-			result_is_percentile: True  -- result is p-th percentile of data
+			result_is_percentile: True  -- result is p-th percentile of a_data
 		end
 
-	quartiles (data: ARRAY [REAL_64]): ARRAY [REAL_64]
+	quartiles (a_data: ARRAY [REAL_64]): ARRAY [REAL_64]
 			-- Q1, Q2 (median), Q3 as array of 3 values.
 		require
-			data_not_empty: not data.is_empty
-			sufficient_data: data.count >= 4
+			data_not_empty: not a_data.is_empty
+			sufficient_data: a_data.count >= 4
 		do
 			create Result.make_filled (0.0, 1, 3)
-			Result[1] := percentile (data, 25.0)
-			Result[2] := percentile (data, 50.0)
-			Result[3] := percentile (data, 75.0)
+			Result[1] := percentile (a_data, 25.0)
+			Result[2] := percentile (a_data, 50.0)
+			Result[3] := percentile (a_data, 75.0)
 		ensure
 			result_size: Result.count = 3
 			ordered: Result [1] <= Result [2] and Result [2] <= Result [3]
 		end
 
-	min_value (data: ARRAY [REAL_64]): REAL_64
+	min_value (a_data: ARRAY [REAL_64]): REAL_64
 			-- Minimum value in dataset.
 		require
-			data_not_empty: not data.is_empty
+			data_not_empty: not a_data.is_empty
 		do
-			Result := data[data.lower]
-			across data as ic loop
+			Result := a_data[a_data.lower]
+			across a_data as ic loop
 				if ic.item < Result then
 					Result := ic.item
 				end
 			end
 		ensure
-			result_in_data: data.has (Result)
+			result_in_data: a_data.has (Result)
 			result_is_minimum: True  -- result is smallest element
 		end
 
-	max_value (data: ARRAY [REAL_64]): REAL_64
+	max_value (a_data: ARRAY [REAL_64]): REAL_64
 			-- Maximum value in dataset.
 		require
-			data_not_empty: not data.is_empty
+			data_not_empty: not a_data.is_empty
 		do
-			Result := data[data.lower]
-			across data as ic loop
+			Result := a_data[a_data.lower]
+			across a_data as ic loop
 				if ic.item > Result then
 					Result := ic.item
 				end
 			end
 		ensure
-			result_in_data: data.has (Result)
+			result_in_data: a_data.has (Result)
 			result_is_maximum: True  -- result is largest element
 		end
 
-	range (data: ARRAY [REAL_64]): REAL_64
+	range (a_data: ARRAY [REAL_64]): REAL_64
 			-- max - min (spread).
 		require
-			data_not_empty: not data.is_empty
+			data_not_empty: not a_data.is_empty
 		do
-			Result := max_value (data) - min_value (data)
+			Result := max_value (a_data) - min_value (a_data)
 		ensure
 			result_non_negative: Result >= 0.0
 		end
 
-	sum (data: ARRAY [REAL_64]): REAL_64
+	sum (a_data: ARRAY [REAL_64]): REAL_64
 			-- Sum of all values using Kahan summation for numerical stability.
 		require
-			data_not_empty: not data.is_empty
+			data_not_empty: not a_data.is_empty
 		local
 			running_sum: REAL_64
 			compensation: REAL_64
@@ -229,14 +229,14 @@ feature -- Descriptive Statistics
 		do
 			running_sum := 0.0
 			compensation := 0.0
-			across data as ic loop
+			across a_data as ic loop
 				temp := ic.item - compensation
 				running_sum := running_sum + temp
 				compensation := (running_sum - ic.item) - temp
 			end
 			Result := running_sum
 		ensure
-			result_is_sum: True  -- result is sum of all data points
+			result_is_sum: True  -- result is sum of all a_data points
 		end
 
 feature -- Correlation & Covariance
@@ -366,11 +366,11 @@ feature -- Regression
 
 feature -- Hypothesis Testing
 
-	t_test_one_sample (data: ARRAY [REAL_64]; mu_0: REAL_64): TEST_RESULT
+	t_test_one_sample (a_data: ARRAY [REAL_64]; mu_0: REAL_64): TEST_RESULT
 			-- One-sample t-test: H0: mu = mu_0.
 		require
-			data_not_empty: not data.is_empty
-			sufficient_data: data.count >= 2
+			data_not_empty: not a_data.is_empty
+			sufficient_data: a_data.count >= 2
 		local
 			sample_mean: REAL_64
 			std_error: REAL_64
@@ -381,13 +381,13 @@ feature -- Hypothesis Testing
 			n_sqrt: REAL_64
 			n: REAL_64
 		do
-			sample_mean := mean (data)
+			sample_mean := mean (a_data)
 			create math.make
-			n := data.count
+			n := a_data.count
 			n_sqrt := math.sqrt (n)
-			std_error := std_dev (data) / n_sqrt
+			std_error := std_dev (a_data) / n_sqrt
 			t_statistic := (sample_mean - mu_0) / std_error
-			dof := data.count - 1
+			dof := a_data.count - 1
 
 			-- Placeholder p-value (simplified - Phase 5 will use proper t-CDF)
 			-- For now, return 0.5 as placeholder
@@ -397,7 +397,7 @@ feature -- Hypothesis Testing
 		ensure
 			result_valid: Result /= Void
 			p_value_valid: Result.p_value >= 0.0 and Result.p_value <= 1.0
-			dof_correct: Result.degrees_of_freedom = data.count - 1
+			dof_correct: Result.degrees_of_freedom = a_data.count - 1
 		end
 
 	t_test_two_sample (x, y: ARRAY [REAL_64]): TEST_RESULT
@@ -513,10 +513,10 @@ feature -- Hypothesis Testing
 			dof_correct: Result.degrees_of_freedom = observed.count - 1
 		end
 
-	anova (groups: ARRAY [ARRAY [REAL_64]]): TEST_RESULT
+	anova (a_groups: ARRAY [ARRAY [REAL_64]]): TEST_RESULT
 			-- One-way ANOVA: H0: all group means are equal.
 		require
-			sufficient_groups: groups.count >= 3
+			sufficient_groups: a_groups.count >= 3
 		local
 			grand_mean: REAL_64
 			all_data: ARRAY [REAL_64]
@@ -533,16 +533,16 @@ feature -- Hypothesis Testing
 		do
 			-- Combine all data to compute grand mean
 			total_count := 0
-			from i := groups.lower until i > groups.upper loop
-				total_count := total_count + groups[i].count
+			from i := a_groups.lower until i > a_groups.upper loop
+				total_count := total_count + a_groups[i].count
 				i := i + 1
 			end
 
 			create all_data.make_filled (0.0, 1, total_count)
 			k := 1
-			from i := groups.lower until i > groups.upper loop
-				from j := groups[i].lower until j > groups[i].upper loop
-					all_data[k] := groups[i][j]
+			from i := a_groups.lower until i > a_groups.upper loop
+				from j := a_groups[i].lower until j > a_groups[i].upper loop
+					all_data[k] := a_groups[i][j]
 					k := k + 1
 					j := j + 1
 				end
@@ -553,24 +553,24 @@ feature -- Hypothesis Testing
 
 			-- Compute sum of squares between groups
 			ss_between := 0.0
-			from i := groups.lower until i > groups.upper loop
-				ss_between := ss_between + groups[i].count * (mean (groups[i]) - grand_mean) * (mean (groups[i]) - grand_mean)
+			from i := a_groups.lower until i > a_groups.upper loop
+				ss_between := ss_between + a_groups[i].count * (mean (a_groups[i]) - grand_mean) * (mean (a_groups[i]) - grand_mean)
 				i := i + 1
 			end
 
 			-- Compute sum of squares within groups
 			ss_within := 0.0
-			from i := groups.lower until i > groups.upper loop
-				from j := groups[i].lower until j > groups[i].upper loop
-					ss_within := ss_within + (groups[i][j] - mean (groups[i])) * (groups[i][j] - mean (groups[i]))
+			from i := a_groups.lower until i > a_groups.upper loop
+				from j := a_groups[i].lower until j > a_groups[i].upper loop
+					ss_within := ss_within + (a_groups[i][j] - mean (a_groups[i])) * (a_groups[i][j] - mean (a_groups[i]))
 					j := j + 1
 				end
 				i := i + 1
 			end
 
 			-- Compute degrees of freedom
-			dof_between := groups.count - 1
-			dof_within := total_count - groups.count
+			dof_between := a_groups.count - 1
+			dof_within := total_count - a_groups.count
 
 			-- Compute mean squares
 			ms_between := ss_between / dof_between

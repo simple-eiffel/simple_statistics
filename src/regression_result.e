@@ -30,12 +30,12 @@ feature -- Diagnostics
 
 feature -- Prediction & Validation
 
-	predict (x: REAL_64): REAL_64
+	predict (a_x: REAL_64): REAL_64
 			-- Predict y for given x using fitted model.
 		require
-			x_valid: True  -- x validated in implementation
+			x_valid: True  -- a_x validated in implementation
 		do
-			Result := slope * x + intercept
+			Result := slope * a_x + intercept
 		ensure
 			result_valid: True  -- result is finite
 		end

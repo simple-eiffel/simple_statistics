@@ -24,33 +24,33 @@ feature -- Access
 
 feature -- Interpretation
 
-	conclusion (alpha: REAL_64): BOOLEAN
+	conclusion (a_alpha: REAL_64): BOOLEAN
 			-- Is null hypothesis rejected at significance level alpha?
 			-- True means reject H₀ (result is significant).
 		require
-			alpha_valid: alpha > 0.0 and alpha < 1.0
+			alpha_valid: a_alpha > 0.0 and a_alpha < 1.0
 		do
-			Result := p_value < alpha
+			Result := p_value < a_alpha
 		ensure
-			result_defined: Result = (p_value < alpha)
+			result_defined: Result = (p_value < a_alpha)
 		end
 
-	is_significant (alpha: REAL_64): BOOLEAN
+	is_significant (a_alpha: REAL_64): BOOLEAN
 			-- Alias for conclusion (alpha).
 		require
-			alpha_valid: alpha > 0.0 and alpha < 1.0
+			alpha_valid: a_alpha > 0.0 and a_alpha < 1.0
 		do
-			Result := conclusion (alpha)
+			Result := conclusion (a_alpha)
 		ensure
-			result_defined: Result = conclusion (alpha)
+			result_defined: Result = conclusion (a_alpha)
 		end
 
 feature -- Formatting
 
-	format_for_publication (test_name: STRING): STRING
+	format_for_publication (a_test_name: STRING): STRING
 			-- Format result for academic publication (e.g., "t(98)=2.34, p=.022").
 		require
-			test_name_valid: not test_name.is_empty
+			test_name_valid: not a_test_name.is_empty
 		do
 			-- TODO: Phase 4 - Format as "test_name(dof)=stat, p=pval"
 			Result := ""

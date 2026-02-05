@@ -19,20 +19,20 @@ feature {NONE} -- Initialization
 
 feature -- Data Cleaning
 
-	remove_nan (data: ARRAY [REAL_64]): ARRAY [REAL_64]
+	remove_nan (a_data: ARRAY [REAL_64]): ARRAY [REAL_64]
 			-- Return array with all NaN values removed.
 		require
-			input_valid: data /= Void
+			input_valid: a_data /= Void
 		local
 			i: INTEGER
 			result_list: ARRAYED_LIST [REAL_64]
 			k: INTEGER
 		do
 			create result_list.make (0)
-			from i := data.lower until i > data.upper loop
+			from i := a_data.lower until i > a_data.upper loop
 				-- NaN is not equal to itself
-				if data[i] = data[i] then
-					result_list.force (data[i])
+				if a_data[i] = a_data[i] then
+					result_list.force (a_data[i])
 				end
 				i := i + 1
 			end
@@ -45,13 +45,13 @@ feature -- Data Cleaning
 			end
 		ensure
 			result_valid: not has_nan (Result)
-			result_size: Result.count <= data.count
+			result_size: Result.count <= a_data.count
 		end
 
-	remove_infinite (data: ARRAY [REAL_64]): ARRAY [REAL_64]
+	remove_infinite (a_data: ARRAY [REAL_64]): ARRAY [REAL_64]
 			-- Return array with all infinite values removed.
 		require
-			input_valid: data /= Void
+			input_valid: a_data /= Void
 		local
 			i: INTEGER
 			result_list: ARRAYED_LIST [REAL_64]
@@ -59,11 +59,11 @@ feature -- Data Cleaning
 			k: INTEGER
 		do
 			create result_list.make (0)
-			from i := data.lower until i > data.upper loop
+			from i := a_data.lower until i > a_data.upper loop
 				-- Infinite value when doubling equals itself
-				two_times := data[i] * 2.0
-				if data[i] /= two_times then
-					result_list.force (data[i])
+				two_times := a_data[i] * 2.0
+				if a_data[i] /= two_times then
+					result_list.force (a_data[i])
 				end
 				i := i + 1
 			end
@@ -76,54 +76,54 @@ feature -- Data Cleaning
 			end
 		ensure
 			result_valid: not has_infinite (Result)
-			result_size: Result.count <= data.count
+			result_size: Result.count <= a_data.count
 		end
 
-	clean (data: ARRAY [REAL_64]): ARRAY [REAL_64]
+	clean (a_data: ARRAY [REAL_64]): ARRAY [REAL_64]
 			-- Remove all NaN and infinite values.
 		require
-			input_valid: data /= Void
+			input_valid: a_data /= Void
 		do
-			Result := remove_infinite (remove_nan (data))
+			Result := remove_infinite (remove_nan (a_data))
 		ensure
 			result_valid: not has_nan (Result) and not has_infinite (Result)
-			result_size: Result.count <= data.count
+			result_size: Result.count <= a_data.count
 		end
 
 feature {NONE} -- Helper Queries
 
-	has_nan (arr: ARRAY [REAL_64]): BOOLEAN
+	has_nan (a_arr: ARRAY [REAL_64]): BOOLEAN
 			-- Does array contain any NaN values?
 		require
-			arr_not_void: arr /= Void
+			arr_not_void: a_arr /= Void
 		local
 			i: INTEGER
 		do
 			Result := False
-			from i := arr.lower until i > arr.upper or Result loop
+			from i := a_arr.lower until i > a_arr.upper or Result loop
 				-- NaN is not equal to itself (IEEE 754 property)
-				if arr[i] /= arr[i] then
+				if a_arr[i] /= a_arr[i] then
 					Result := True
 				end
 				i := i + 1
 			end
 		ensure
-			result_correct: Result = (across arr as a some a.item /= a.item end)
+			result_correct: Result = (across a_arr as a some a.item /= a.item end)
 		end
 
-	has_infinite (arr: ARRAY [REAL_64]): BOOLEAN
+	has_infinite (a_arr: ARRAY [REAL_64]): BOOLEAN
 			-- Does array contain any infinite values?
 		require
-			arr_not_void: arr /= Void
+			arr_not_void: a_arr /= Void
 		local
 			i: INTEGER
 			two_times: REAL_64
 		do
 			Result := False
-			from i := arr.lower until i > arr.upper or Result loop
+			from i := a_arr.lower until i > a_arr.upper or Result loop
 				-- Check if doubling value equals itself (true for infinite, false otherwise)
-				two_times := arr[i] * 2.0
-				if arr[i] = two_times then
+				two_times := a_arr[i] * 2.0
+				if a_arr[i] = two_times then
 					Result := True
 				end
 				i := i + 1

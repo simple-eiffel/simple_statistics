@@ -24,8 +24,8 @@ feature -- Descriptive Statistics
 		require
 			data_not_empty: not a_data.is_empty
 		local
-			mean_val: REAL_64
-			count: INTEGER
+			l_mean_val: REAL_64
+			l_count: INTEGER
 		do
 			mean_val := 0.0
 			count := 0
@@ -54,9 +54,9 @@ feature -- Descriptive Statistics
 		require
 			data_not_empty: not a_data.is_empty
 		local
-			frequency_map: HASH_TABLE [INTEGER, REAL_64]
-			max_freq: INTEGER
-			mode_val: REAL_64
+			l_frequency_map: HASH_TABLE [INTEGER, REAL_64]
+			l_max_freq: INTEGER
+			l_mode_val: REAL_64
 		do
 			create frequency_map.make (a_data.count)
 			max_freq := 0
@@ -85,8 +85,8 @@ feature -- Descriptive Statistics
 		require
 			data_not_empty: not a_data.is_empty
 		local
-			mean_val: REAL_64
-			sum_sq_dev: REAL_64
+			l_mean_val: REAL_64
+			l_sum_sq_dev: REAL_64
 		do
 			mean_val := mean (a_data)
 			sum_sq_dev := 0.0
@@ -103,8 +103,8 @@ feature -- Descriptive Statistics
 		require
 			data_not_empty: not a_data.is_empty
 		local
-			var: REAL_64
-			math: SIMPLE_MATH
+			l_var: REAL_64
+			l_math: SIMPLE_MATH
 		do
 			var := variance (a_data)
 			create math.make
@@ -119,13 +119,13 @@ feature -- Descriptive Statistics
 			data_not_empty: not a_data.is_empty
 			percentile_valid: p >= 0.0 and p <= 100.0
 		local
-			sorted: ARRAY [REAL_64]
-			h: REAL_64
-			h_floor: INTEGER
-			h_ceil: INTEGER
-			fraction: REAL_64
+			l_sorted: ARRAY [REAL_64]
+			l_h: REAL_64
+			l_h_floor: INTEGER
+			l_h_ceil: INTEGER
+			l_fraction: REAL_64
 			i, j: INTEGER
-			temp: REAL_64
+			l_temp: REAL_64
 		do
 			-- Create sorted copy of data using bubble sort
 			create sorted.make_from_array (a_data)
@@ -223,9 +223,9 @@ feature -- Descriptive Statistics
 		require
 			data_not_empty: not a_data.is_empty
 		local
-			running_sum: REAL_64
-			compensation: REAL_64
-			temp: REAL_64
+			l_running_sum: REAL_64
+			l_compensation: REAL_64
+			l_temp: REAL_64
 		do
 			running_sum := 0.0
 			compensation := 0.0
@@ -249,9 +249,9 @@ feature -- Correlation & Covariance
 			data_valid: not x.is_empty and not y.is_empty
 			sufficient_data: x.count >= 2
 		local
-			cov_xy: REAL_64
-			std_x: REAL_64
-			std_y: REAL_64
+			l_cov_xy: REAL_64
+			l_std_x: REAL_64
+			l_std_y: REAL_64
 		do
 			cov_xy := covariance (x, y)
 			std_x := std_dev (x)
@@ -273,9 +273,9 @@ feature -- Correlation & Covariance
 			data_valid: not x.is_empty and not y.is_empty
 			sufficient_data: x.count >= 2
 		local
-			mean_x: REAL_64
-			mean_y: REAL_64
-			sum_products: REAL_64
+			l_mean_x: REAL_64
+			l_mean_y: REAL_64
+			l_sum_products: REAL_64
 			i: INTEGER
 		do
 			mean_x := mean (x)
@@ -301,16 +301,16 @@ feature -- Regression
 			data_valid: not x.is_empty and not y.is_empty
 			sufficient_data: x.count >= 3
 		local
-			mean_x: REAL_64
-			mean_y: REAL_64
-			slope_num: REAL_64
-			slope_den: REAL_64
-			slope: REAL_64
-			intercept: REAL_64
-			y_pred: REAL_64
-			ss_res: REAL_64
-			ss_tot: REAL_64
-			r_squared: REAL_64
+			l_mean_x: REAL_64
+			l_mean_y: REAL_64
+			l_slope_num: REAL_64
+			l_slope_den: REAL_64
+			l_slope: REAL_64
+			l_intercept: REAL_64
+			l_y_pred: REAL_64
+			l_ss_res: REAL_64
+			l_ss_tot: REAL_64
+			l_r_squared: REAL_64
 			i: INTEGER
 		do
 			mean_x := mean (x)
@@ -372,13 +372,13 @@ feature -- Hypothesis Testing
 			data_not_empty: not a_data.is_empty
 			sufficient_data: a_data.count >= 2
 		local
-			sample_mean: REAL_64
-			std_error: REAL_64
-			t_statistic: REAL_64
-			dof: INTEGER
-			p_value: REAL_64
-			math: SIMPLE_MATH
-			n_sqrt: REAL_64
+			l_sample_mean: REAL_64
+			l_std_error: REAL_64
+			l_t_statistic: REAL_64
+			l_dof: INTEGER
+			l_p_value: REAL_64
+			l_math: SIMPLE_MATH
+			l_n_sqrt: REAL_64
 			n: REAL_64
 		do
 			sample_mean := mean (a_data)
@@ -406,15 +406,15 @@ feature -- Hypothesis Testing
 			data_valid: not x.is_empty and not y.is_empty
 			sufficient_data: x.count >= 2 and y.count >= 2
 		local
-			mean_x: REAL_64
-			mean_y: REAL_64
-			var_x: REAL_64
-			var_y: REAL_64
-			t_statistic: REAL_64
-			dof: INTEGER
-			p_value: REAL_64
-			math: SIMPLE_MATH
-			se: REAL_64
+			l_mean_x: REAL_64
+			l_mean_y: REAL_64
+			l_var_x: REAL_64
+			l_var_y: REAL_64
+			l_t_statistic: REAL_64
+			l_dof: INTEGER
+			l_p_value: REAL_64
+			l_math: SIMPLE_MATH
+			l_se: REAL_64
 		do
 			mean_x := mean (x)
 			mean_y := mean (y)
@@ -447,15 +447,15 @@ feature -- Hypothesis Testing
 			data_valid: not x.is_empty and not y.is_empty
 			sufficient_data: x.count >= 2
 		local
-			differences: ARRAY [REAL_64]
+			l_differences: ARRAY [REAL_64]
 			i: INTEGER
-			mean_diff: REAL_64
-			std_error: REAL_64
-			t_statistic: REAL_64
-			dof: INTEGER
-			p_value: REAL_64
-			math: SIMPLE_MATH
-			n_sqrt: REAL_64
+			l_mean_diff: REAL_64
+			l_std_error: REAL_64
+			l_t_statistic: REAL_64
+			l_dof: INTEGER
+			l_p_value: REAL_64
+			l_math: SIMPLE_MATH
+			l_n_sqrt: REAL_64
 			n: REAL_64
 		do
 			-- Compute differences
@@ -490,10 +490,10 @@ feature -- Hypothesis Testing
 			data_valid: not observed.is_empty
 			expected_frequencies_valid: True  -- all expected frequencies >= 5
 		local
-			chi_sq: REAL_64
+			l_chi_sq: REAL_64
 			i: INTEGER
-			dof: INTEGER
-			p_value: REAL_64
+			l_dof: INTEGER
+			l_p_value: REAL_64
 		do
 			chi_sq := 0.0
 			from i := observed.lower until i > observed.upper loop
@@ -518,18 +518,18 @@ feature -- Hypothesis Testing
 		require
 			sufficient_groups: a_groups.count >= 3
 		local
-			grand_mean: REAL_64
-			all_data: ARRAY [REAL_64]
-			total_count: INTEGER
-			ss_between: REAL_64
-			ss_within: REAL_64
-			ms_between: REAL_64
-			ms_within: REAL_64
-			f_statistic: REAL_64
-			dof_between: INTEGER
-			dof_within: INTEGER
+			l_grand_mean: REAL_64
+			l_all_data: ARRAY [REAL_64]
+			l_total_count: INTEGER
+			l_ss_between: REAL_64
+			l_ss_within: REAL_64
+			l_ms_between: REAL_64
+			l_ms_within: REAL_64
+			l_f_statistic: REAL_64
+			l_dof_between: INTEGER
+			l_dof_within: INTEGER
 			i, j, k: INTEGER
-			p_value: REAL_64
+			l_p_value: REAL_64
 		do
 			-- Combine all data to compute grand mean
 			total_count := 0

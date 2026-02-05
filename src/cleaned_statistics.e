@@ -25,7 +25,7 @@ feature -- Data Cleaning
 			input_valid: a_data /= Void
 		local
 			i: INTEGER
-			result_list: ARRAYED_LIST [REAL_64]
+			l_result_list: ARRAYED_LIST [REAL_64]
 			k: INTEGER
 		do
 			create result_list.make (0)
@@ -54,8 +54,8 @@ feature -- Data Cleaning
 			input_valid: a_data /= Void
 		local
 			i: INTEGER
-			result_list: ARRAYED_LIST [REAL_64]
-			two_times: REAL_64
+			l_result_list: ARRAYED_LIST [REAL_64]
+			l_two_times: REAL_64
 			k: INTEGER
 		do
 			create result_list.make (0)
@@ -117,7 +117,7 @@ feature {NONE} -- Helper Queries
 			arr_not_void: a_arr /= Void
 		local
 			i: INTEGER
-			two_times: REAL_64
+			l_two_times: REAL_64
 		do
 			Result := False
 			from i := a_arr.lower until i > a_arr.upper or Result loop

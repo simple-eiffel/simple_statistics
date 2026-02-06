@@ -27,13 +27,13 @@ feature -- Descriptive Statistics
 			l_mean_val: REAL_64
 			l_count: INTEGER
 		do
-			mean_val := 0.0
-			count := 0
+			l_mean_val := 0.0
+			l_count := 0
 			across a_data as ic loop
-				count := count + 1
-				mean_val := mean_val + (ic.item - mean_val) / count
+				l_count := l_count + 1
+				l_mean_val := l_mean_val + (ic.item - l_mean_val) / l_count
 			end
-			Result := mean_val
+			Result := l_mean_val
 		ensure
 			result_is_average: True  -- result is average of all a_data points
 		end
@@ -58,24 +58,24 @@ feature -- Descriptive Statistics
 			l_max_freq: INTEGER
 			l_mode_val: REAL_64
 		do
-			create frequency_map.make (a_data.count)
-			max_freq := 0
-			mode_val := a_data[a_data.lower]
+			create l_frequency_map.make (a_data.count)
+			l_max_freq := 0
+			l_mode_val := a_data[a_data.lower]
 
 			across a_data as ic loop
-				if frequency_map.has (ic.item) then
-					frequency_map[ic.item] := frequency_map[ic.item] + 1
+				if l_frequency_map.has (ic.item) then
+					l_frequency_map[ic.item] := l_frequency_map[ic.item] + 1
 				else
-					frequency_map[ic.item] := 1
+					l_frequency_map[ic.item] := 1
 				end
 
-				if frequency_map[ic.item] > max_freq then
-					max_freq := frequency_map[ic.item]
-					mode_val := ic.item
+				if l_frequency_map[ic.item] > l_max_freq then
+					l_max_freq := l_frequency_map[ic.item]
+					l_mode_val := ic.item
 				end
 			end
 
-			Result := mode_val
+			Result := l_mode_val
 		ensure
 			result_in_data: a_data.has (Result)
 		end
@@ -88,12 +88,12 @@ feature -- Descriptive Statistics
 			l_mean_val: REAL_64
 			l_sum_sq_dev: REAL_64
 		do
-			mean_val := mean (a_data)
-			sum_sq_dev := 0.0
+			l_mean_val := mean (a_data)
+			l_sum_sq_dev := 0.0
 			across a_data as ic loop
-				sum_sq_dev := sum_sq_dev + (ic.item - mean_val) * (ic.item - mean_val)
+				l_sum_sq_dev := l_sum_sq_dev + (ic.item - l_mean_val) * (ic.item - l_mean_val)
 			end
-			Result := sum_sq_dev / a_data.count
+			Result := l_sum_sq_dev / a_data.count
 		ensure
 			result_non_negative: Result >= 0.0
 		end
@@ -106,9 +106,9 @@ feature -- Descriptive Statistics
 			l_var: REAL_64
 			l_math: SIMPLE_MATH
 		do
-			var := variance (a_data)
-			create math.make
-			Result := math.sqrt (var)
+			l_var := variance (a_data)
+			create l_math.make
+			Result := l_math.sqrt (l_var)
 		ensure
 			result_non_negative: Result >= 0.0
 		end
@@ -128,15 +128,15 @@ feature -- Descriptive Statistics
 			l_temp: REAL_64
 		do
 			-- Create sorted copy of data using bubble sort
-			create sorted.make_from_array (a_data)
+			create l_sorted.make_from_array (a_data)
 
 			-- Simple bubble sort
-			from i := sorted.lower until i >= sorted.upper loop
-				from j := sorted.lower until j >= sorted.upper - (i - sorted.lower) loop
-					if sorted[j] > sorted[j + 1] then
-						temp := sorted[j]
-						sorted[j] := sorted[j + 1]
-						sorted[j + 1] := temp
+			from i := l_sorted.lower until i >= l_sorted.upper loop
+				from j := l_sorted.lower until j >= l_sorted.upper - (i - l_sorted.lower) loop
+					if l_sorted[j] > l_sorted[j + 1] then
+						l_temp := l_sorted[j]
+						l_sorted[j] := l_sorted[j + 1]
+						l_sorted[j + 1] := l_temp
 					end
 					j := j + 1
 				end
@@ -144,18 +144,18 @@ feature -- Descriptive Statistics
 			end
 
 			-- Compute h = (p/100) * (n - 1)
-			h := (p / 100.0) * (sorted.count - 1)
-			h_floor := h.floor
-			h_ceil := h.ceiling
+			l_h := (p / 100.0) * (l_sorted.count - 1)
+			l_h_floor := l_h.floor
+			l_h_ceil := l_h.ceiling
 
-			if h_floor = h_ceil then
+			if l_h_floor = l_h_ceil then
 				-- h is exact integer - return sorted[h + 1] (adjust for 1-based indexing)
-				Result := sorted[sorted.lower + h_floor]
+				Result := l_sorted[l_sorted.lower + l_h_floor]
 			else
 				-- Interpolate between sorted[h_floor] and sorted[h_ceil]
-				fraction := h - h.floor
-				Result := sorted[sorted.lower + h_floor] * (1.0 - fraction) +
-						  sorted[sorted.lower + h_ceil] * fraction
+				l_fraction := l_h - l_h.floor
+				Result := l_sorted[l_sorted.lower + l_h_floor] * (1.0 - l_fraction) +
+						  l_sorted[l_sorted.lower + l_h_ceil] * l_fraction
 			end
 		ensure
 			result_is_percentile: True  -- result is p-th percentile of a_data
@@ -227,14 +227,14 @@ feature -- Descriptive Statistics
 			l_compensation: REAL_64
 			l_temp: REAL_64
 		do
-			running_sum := 0.0
-			compensation := 0.0
+			l_running_sum := 0.0
+			l_compensation := 0.0
 			across a_data as ic loop
-				temp := ic.item - compensation
-				running_sum := running_sum + temp
-				compensation := (running_sum - ic.item) - temp
+				l_temp := ic.item - l_compensation
+				l_running_sum := l_running_sum + l_temp
+				l_compensation := (l_running_sum - ic.item) - l_temp
 			end
-			Result := running_sum
+			Result := l_running_sum
 		ensure
 			result_is_sum: True  -- result is sum of all a_data points
 		end
@@ -253,14 +253,14 @@ feature -- Correlation & Covariance
 			l_std_x: REAL_64
 			l_std_y: REAL_64
 		do
-			cov_xy := covariance (x, y)
-			std_x := std_dev (x)
-			std_y := std_dev (y)
+			l_cov_xy := covariance (x, y)
+			l_std_x := std_dev (x)
+			l_std_y := std_dev (y)
 
-			if std_x = 0.0 or std_y = 0.0 then
+			if l_std_x = 0.0 or l_std_y = 0.0 then
 				Result := 0.0
 			else
-				Result := cov_xy / (std_x * std_y)
+				Result := l_cov_xy / (l_std_x * l_std_y)
 			end
 		ensure
 			result_in_range: Result >= -1.0 and Result <= 1.0
@@ -278,16 +278,16 @@ feature -- Correlation & Covariance
 			l_sum_products: REAL_64
 			i: INTEGER
 		do
-			mean_x := mean (x)
-			mean_y := mean (y)
-			sum_products := 0.0
+			l_mean_x := mean (x)
+			l_mean_y := mean (y)
+			l_sum_products := 0.0
 
 			from i := x.lower until i > x.upper loop
-				sum_products := sum_products + (x[i] - mean_x) * (y[y.lower + (i - x.lower)] - mean_y)
+				l_sum_products := l_sum_products + (x[i] - l_mean_x) * (y[y.lower + (i - x.lower)] - l_mean_y)
 				i := i + 1
 			end
 
-			Result := sum_products / x.count
+			Result := l_sum_products / x.count
 		ensure
 			result_valid: True  -- result is finite
 		end
@@ -313,52 +313,52 @@ feature -- Regression
 			l_r_squared: REAL_64
 			i: INTEGER
 		do
-			mean_x := mean (x)
-			mean_y := mean (y)
+			l_mean_x := mean (x)
+			l_mean_y := mean (y)
 
 			-- Compute slope using formula: slope = cov(x,y) / var(x)
-			slope_num := 0.0
-			slope_den := 0.0
+			l_slope_num := 0.0
+			l_slope_den := 0.0
 
 			from i := x.lower until i > x.upper loop
-				slope_num := slope_num + (x[i] - mean_x) * (y[y.lower + (i - x.lower)] - mean_y)
-				slope_den := slope_den + (x[i] - mean_x) * (x[i] - mean_x)
+				l_slope_num := l_slope_num + (x[i] - l_mean_x) * (y[y.lower + (i - x.lower)] - l_mean_y)
+				l_slope_den := l_slope_den + (x[i] - l_mean_x) * (x[i] - l_mean_x)
 				i := i + 1
 			end
 
-			if slope_den = 0.0 then
-				slope := 0.0
+			if l_slope_den = 0.0 then
+				l_slope := 0.0
 			else
-				slope := slope_num / slope_den
+				l_slope := l_slope_num / l_slope_den
 			end
 
-			intercept := mean_y - slope * mean_x
+			l_intercept := l_mean_y - l_slope * l_mean_x
 
 			-- Compute R-squared
-			ss_res := 0.0
-			ss_tot := 0.0
+			l_ss_res := 0.0
+			l_ss_tot := 0.0
 
 			from i := x.lower until i > x.upper loop
-				y_pred := slope * x[i] + intercept
-				ss_res := ss_res + (y[y.lower + (i - x.lower)] - y_pred) * (y[y.lower + (i - x.lower)] - y_pred)
-				ss_tot := ss_tot + (y[y.lower + (i - x.lower)] - mean_y) * (y[y.lower + (i - x.lower)] - mean_y)
+				l_y_pred := l_slope * x[i] + l_intercept
+				l_ss_res := l_ss_res + (y[y.lower + (i - x.lower)] - l_y_pred) * (y[y.lower + (i - x.lower)] - l_y_pred)
+				l_ss_tot := l_ss_tot + (y[y.lower + (i - x.lower)] - l_mean_y) * (y[y.lower + (i - x.lower)] - l_mean_y)
 				i := i + 1
 			end
 
-			if ss_tot = 0.0 then
-				r_squared := 1.0
+			if l_ss_tot = 0.0 then
+				l_r_squared := 1.0
 			else
-				r_squared := 1.0 - (ss_res / ss_tot)
+				l_r_squared := 1.0 - (l_ss_res / l_ss_tot)
 			end
 
 			-- Ensure r_squared is in valid range [0, 1]
-			if r_squared < 0.0 then
-				r_squared := 0.0
-			elseif r_squared > 1.0 then
-				r_squared := 1.0
+			if l_r_squared < 0.0 then
+				l_r_squared := 0.0
+			elseif l_r_squared > 1.0 then
+				l_r_squared := 1.0
 			end
 
-			create Result.make (slope, intercept, r_squared, x, 1.0)
+			create Result.make (l_slope, l_intercept, l_r_squared, x, 1.0)
 		ensure
 			result_valid: Result /= Void
 			r2_valid: Result.r_squared >= 0.0 and Result.r_squared <= 1.0
@@ -381,19 +381,19 @@ feature -- Hypothesis Testing
 			l_n_sqrt: REAL_64
 			n: REAL_64
 		do
-			sample_mean := mean (a_data)
-			create math.make
+			l_sample_mean := mean (a_data)
+			create l_math.make
 			n := a_data.count
-			n_sqrt := math.sqrt (n)
-			std_error := std_dev (a_data) / n_sqrt
-			t_statistic := (sample_mean - mu_0) / std_error
-			dof := a_data.count - 1
+			l_n_sqrt := l_math.sqrt (n)
+			l_std_error := std_dev (a_data) / l_n_sqrt
+			l_t_statistic := (l_sample_mean - mu_0) / l_std_error
+			l_dof := a_data.count - 1
 
 			-- Placeholder p-value (simplified - Phase 5 will use proper t-CDF)
 			-- For now, return 0.5 as placeholder
-			p_value := 0.5
+			l_p_value := 0.5
 
-			create Result.make (t_statistic, p_value, dof, create {ARRAY [ASSUMPTION_CHECK]}.make_empty)
+			create Result.make (l_t_statistic, l_p_value, l_dof, create {ARRAY [ASSUMPTION_CHECK]}.make_empty)
 		ensure
 			result_valid: Result /= Void
 			p_value_valid: Result.p_value >= 0.0 and Result.p_value <= 1.0
@@ -416,25 +416,25 @@ feature -- Hypothesis Testing
 			l_math: SIMPLE_MATH
 			l_se: REAL_64
 		do
-			mean_x := mean (x)
-			mean_y := mean (y)
-			var_x := variance (x)
-			var_y := variance (y)
+			l_mean_x := mean (x)
+			l_mean_y := mean (y)
+			l_var_x := variance (x)
+			l_var_y := variance (y)
 
-			create math.make
+			create l_math.make
 			-- Welch's t-test statistic
-			se := math.sqrt (var_x / x.count + var_y / y.count)
-			t_statistic := (mean_x - mean_y) / se
+			l_se := l_math.sqrt (l_var_x / x.count + l_var_y / y.count)
+			l_t_statistic := (l_mean_x - l_mean_y) / l_se
 
 			-- Welch-Satterthwaite degrees of freedom
-			dof := ((var_x / x.count + var_y / y.count) * (var_x / x.count + var_y / y.count) /
-					((var_x / x.count) * (var_x / x.count) / (x.count - 1) +
-					 (var_y / y.count) * (var_y / y.count) / (y.count - 1))).floor
+			l_dof := ((l_var_x / x.count + l_var_y / y.count) * (l_var_x / x.count + l_var_y / y.count) /
+					((l_var_x / x.count) * (l_var_x / x.count) / (x.count - 1) +
+					 (l_var_y / y.count) * (l_var_y / y.count) / (y.count - 1))).floor
 
 			-- Placeholder p-value (Phase 5 will use proper t-CDF)
-			p_value := 0.5
+			l_p_value := 0.5
 
-			create Result.make (t_statistic, p_value, dof, create {ARRAY [ASSUMPTION_CHECK]}.make_empty)
+			create Result.make (l_t_statistic, l_p_value, l_dof, create {ARRAY [ASSUMPTION_CHECK]}.make_empty)
 		ensure
 			result_valid: Result /= Void
 			dof_positive: Result.degrees_of_freedom >= 1
@@ -459,24 +459,24 @@ feature -- Hypothesis Testing
 			n: REAL_64
 		do
 			-- Compute differences
-			create differences.make_filled (0.0, 1, x.count)
+			create l_differences.make_filled (0.0, 1, x.count)
 			from i := x.lower until i > x.upper loop
-				differences[i - x.lower + 1] := x[i] - y[y.lower + (i - x.lower)]
+				l_differences[i - x.lower + 1] := x[i] - y[y.lower + (i - x.lower)]
 				i := i + 1
 			end
 
-			mean_diff := mean (differences)
-			create math.make
-			n := differences.count
-			n_sqrt := math.sqrt (n)
-			std_error := std_dev (differences) / n_sqrt
-			t_statistic := mean_diff / std_error
-			dof := x.count - 1
+			l_mean_diff := mean (l_differences)
+			create l_math.make
+			n := l_differences.count
+			l_n_sqrt := l_math.sqrt (n)
+			l_std_error := std_dev (l_differences) / l_n_sqrt
+			l_t_statistic := l_mean_diff / l_std_error
+			l_dof := x.count - 1
 
 			-- Placeholder p-value (Phase 5 will use proper t-CDF)
-			p_value := 0.5
+			l_p_value := 0.5
 
-			create Result.make (t_statistic, p_value, dof, create {ARRAY [ASSUMPTION_CHECK]}.make_empty)
+			create Result.make (l_t_statistic, l_p_value, l_dof, create {ARRAY [ASSUMPTION_CHECK]}.make_empty)
 		ensure
 			result_valid: Result /= Void
 			dof_correct: Result.degrees_of_freedom = x.count - 1
@@ -495,18 +495,18 @@ feature -- Hypothesis Testing
 			l_dof: INTEGER
 			l_p_value: REAL_64
 		do
-			chi_sq := 0.0
+			l_chi_sq := 0.0
 			from i := observed.lower until i > observed.upper loop
-				chi_sq := chi_sq + (observed[i] - expected[i]) * (observed[i] - expected[i]) / expected[i]
+				l_chi_sq := l_chi_sq + (observed[i] - expected[i]) * (observed[i] - expected[i]) / expected[i]
 				i := i + 1
 			end
 
-			dof := observed.count - 1
+			l_dof := observed.count - 1
 
 			-- Placeholder p-value (Phase 5 will use proper chi-square CDF)
-			p_value := 0.5
+			l_p_value := 0.5
 
-			create Result.make (chi_sq, p_value, dof, create {ARRAY [ASSUMPTION_CHECK]}.make_empty)
+			create Result.make (l_chi_sq, l_p_value, l_dof, create {ARRAY [ASSUMPTION_CHECK]}.make_empty)
 		ensure
 			result_valid: Result /= Void
 			p_value_valid: Result.p_value >= 0.0 and Result.p_value <= 1.0
@@ -532,61 +532,61 @@ feature -- Hypothesis Testing
 			l_p_value: REAL_64
 		do
 			-- Combine all data to compute grand mean
-			total_count := 0
+			l_total_count := 0
 			from i := a_groups.lower until i > a_groups.upper loop
-				total_count := total_count + a_groups[i].count
+				l_total_count := l_total_count + a_groups[i].count
 				i := i + 1
 			end
 
-			create all_data.make_filled (0.0, 1, total_count)
+			create l_all_data.make_filled (0.0, 1, l_total_count)
 			k := 1
 			from i := a_groups.lower until i > a_groups.upper loop
 				from j := a_groups[i].lower until j > a_groups[i].upper loop
-					all_data[k] := a_groups[i][j]
+					l_all_data[k] := a_groups[i][j]
 					k := k + 1
 					j := j + 1
 				end
 				i := i + 1
 			end
 
-			grand_mean := mean (all_data)
+			l_grand_mean := mean (l_all_data)
 
 			-- Compute sum of squares between groups
-			ss_between := 0.0
+			l_ss_between := 0.0
 			from i := a_groups.lower until i > a_groups.upper loop
-				ss_between := ss_between + a_groups[i].count * (mean (a_groups[i]) - grand_mean) * (mean (a_groups[i]) - grand_mean)
+				l_ss_between := l_ss_between + a_groups[i].count * (mean (a_groups[i]) - l_grand_mean) * (mean (a_groups[i]) - l_grand_mean)
 				i := i + 1
 			end
 
 			-- Compute sum of squares within groups
-			ss_within := 0.0
+			l_ss_within := 0.0
 			from i := a_groups.lower until i > a_groups.upper loop
 				from j := a_groups[i].lower until j > a_groups[i].upper loop
-					ss_within := ss_within + (a_groups[i][j] - mean (a_groups[i])) * (a_groups[i][j] - mean (a_groups[i]))
+					l_ss_within := l_ss_within + (a_groups[i][j] - mean (a_groups[i])) * (a_groups[i][j] - mean (a_groups[i]))
 					j := j + 1
 				end
 				i := i + 1
 			end
 
 			-- Compute degrees of freedom
-			dof_between := a_groups.count - 1
-			dof_within := total_count - a_groups.count
+			l_dof_between := a_groups.count - 1
+			l_dof_within := l_total_count - a_groups.count
 
 			-- Compute mean squares
-			ms_between := ss_between / dof_between
-			ms_within := ss_within / dof_within
+			l_ms_between := l_ss_between / l_dof_between
+			l_ms_within := l_ss_within / l_dof_within
 
 			-- Compute F-statistic
-			if ms_within = 0.0 then
-				f_statistic := 0.0
+			if l_ms_within = 0.0 then
+				l_f_statistic := 0.0
 			else
-				f_statistic := ms_between / ms_within
+				l_f_statistic := l_ms_between / l_ms_within
 			end
 
 			-- Placeholder p-value (Phase 5 will use proper F-CDF)
-			p_value := 0.5
+			l_p_value := 0.5
 
-			create Result.make (f_statistic, p_value, dof_between, create {ARRAY [ASSUMPTION_CHECK]}.make_empty)
+			create Result.make (l_f_statistic, l_p_value, l_dof_between, create {ARRAY [ASSUMPTION_CHECK]}.make_empty)
 		ensure
 			result_valid: Result /= Void
 			p_value_valid: Result.p_value >= 0.0 and Result.p_value <= 1.0

@@ -28,18 +28,18 @@ feature -- Data Cleaning
 			l_result_list: ARRAYED_LIST [REAL_64]
 			k: INTEGER
 		do
-			create result_list.make (0)
+			create l_result_list.make (0)
 			from i := a_data.lower until i > a_data.upper loop
 				-- NaN is not equal to itself
 				if a_data[i] = a_data[i] then
-					result_list.force (a_data[i])
+					l_result_list.force (a_data[i])
 				end
 				i := i + 1
 			end
 			-- Convert list to array
-			create Result.make_filled (0.0, 1, result_list.count)
+			create Result.make_filled (0.0, 1, l_result_list.count)
 			k := 1
-			across result_list as ic loop
+			across l_result_list as ic loop
 				Result[k] := ic.item
 				k := k + 1
 			end
@@ -58,19 +58,19 @@ feature -- Data Cleaning
 			l_two_times: REAL_64
 			k: INTEGER
 		do
-			create result_list.make (0)
+			create l_result_list.make (0)
 			from i := a_data.lower until i > a_data.upper loop
 				-- Infinite value when doubling equals itself
-				two_times := a_data[i] * 2.0
-				if a_data[i] /= two_times then
-					result_list.force (a_data[i])
+				l_two_times := a_data[i] * 2.0
+				if a_data[i] /= l_two_times then
+					l_result_list.force (a_data[i])
 				end
 				i := i + 1
 			end
 			-- Convert list to array
-			create Result.make_filled (0.0, 1, result_list.count)
+			create Result.make_filled (0.0, 1, l_result_list.count)
 			k := 1
-			across result_list as ic loop
+			across l_result_list as ic loop
 				Result[k] := ic.item
 				k := k + 1
 			end
@@ -122,8 +122,8 @@ feature {NONE} -- Helper Queries
 			Result := False
 			from i := a_arr.lower until i > a_arr.upper or Result loop
 				-- Check if doubling value equals itself (true for infinite, false otherwise)
-				two_times := a_arr[i] * 2.0
-				if a_arr[i] = two_times then
+				l_two_times := a_arr[i] * 2.0
+				if a_arr[i] = l_two_times then
 					Result := True
 				end
 				i := i + 1

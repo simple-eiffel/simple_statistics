@@ -48,6 +48,22 @@ feature -- Prediction & Validation
 			result_defined: Result = (condition_number < 1000000000000.0)
 		end
 
+feature -- Model Queries
+
+	residuals_model: MML_SEQUENCE [REAL_64]
+			-- Mathematical model of residual values in order.
+		local
+			i: INTEGER
+		do
+			create Result
+			from i := residuals.lower until i > residuals.upper loop
+				Result := Result & residuals [i]
+				i := i + 1
+			end
+		ensure
+			count_matches: Result.count = residuals.count
+		end
+
 feature {NONE} -- Creation
 
 	make (a_slope: REAL_64; a_intercept: REAL_64; a_r2: REAL_64;
@@ -75,5 +91,8 @@ invariant
 	slopes_valid: True  -- slopes are finite
 	condition_positive: condition_number >= 1.0
 	residuals_not_void: residuals /= Void
+
+	-- Model consistency
+	model_count: residuals_model.count = residuals.count
 
 end

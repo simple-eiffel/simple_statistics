@@ -1,0 +1,50 @@
+# Phase 1m MML Coverage Report
+# Project: D:\prod\simple_statistics
+# Date: 2026-02-06
+# Mode: spec-kit
+
+## Collection Attributes Found
+| Class | Attribute | Type | MML Type |
+|-------|-----------|------|----------|
+| REGRESSION_RESULT | residuals | ARRAY [REAL_64] | MML_SEQUENCE [REAL_64] |
+| TEST_RESULT | assumption_checks | ARRAY [ASSUMPTION_CHECK] | MML_SEQUENCE [ASSUMPTION_CHECK] |
+
+## Classes Scanned
+| Class | Collection Attributes | Notes |
+|-------|----------------------|-------|
+| STATISTICS | (none) | Stateless facade; all operations take ARRAY parameters |
+| CLEANED_STATISTICS | (none) | Stateless utility; returns new arrays |
+| ASSUMPTION_CHECK | (none) | Immutable value object: name, passed, detail |
+| REGRESSION_RESULT | residuals: ARRAY [REAL_64] | Immutable result object |
+| TEST_RESULT | assumption_checks: ARRAY [ASSUMPTION_CHECK] | Immutable result object |
+
+## Model Queries Added/Verified
+| Class | Query | MML Type | Status |
+|-------|-------|----------|--------|
+| REGRESSION_RESULT | residuals_model | MML_SEQUENCE [REAL_64] | ADDED |
+| TEST_RESULT | assumptions_model | MML_SEQUENCE [ASSUMPTION_CHECK] | ADDED |
+
+## Contracts Strengthened
+- Postconditions added/enriched: 0
+- Preconditions added/enriched: 0
+- Frame conditions added: 0
+- Invariants added/enriched: 2 (REGRESSION_RESULT: model_count, TEST_RESULT: model_count)
+
+## ECF
+No changes needed - simple_mml dependency already present.
+
+## Compilation
+Command: /d/prod/ec.sh test -config simple_statistics.ecf -target simple_statistics_tests
+Output: System Recompiled. C compilation completed.
+Status: PASS (zero warnings)
+
+## Tests
+43/43 tests PASS
+
+## Coverage Assessment
+FULL
+
+Both collection attributes mapped to MML_SEQUENCE with model queries and count-consistency invariants.
+STATISTICS and CLEANED_STATISTICS are stateless (no attributes to model).
+ASSUMPTION_CHECK has only scalar attributes (STRING, BOOLEAN) — no MML applicable.
+Both result classes are immutable after creation — no commands to add frame conditions to.

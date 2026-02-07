@@ -45,6 +45,22 @@ feature -- Interpretation
 			result_defined: Result = conclusion (a_alpha)
 		end
 
+feature -- Model Queries
+
+	assumptions_model: MML_SEQUENCE [ASSUMPTION_CHECK]
+			-- Mathematical model of assumption checks in order.
+		local
+			i: INTEGER
+		do
+			create Result
+			from i := assumption_checks.lower until i > assumption_checks.upper loop
+				Result := Result & assumption_checks [i]
+				i := i + 1
+			end
+		ensure
+			count_matches: Result.count = assumption_checks.count
+		end
+
 feature -- Formatting
 
 	format_for_publication (a_test_name: STRING): STRING
@@ -83,5 +99,8 @@ invariant
 	dof_valid: degrees_of_freedom >= 1
 	statistic_is_finite: True  -- statistic finite by contract
 	assumption_checks_not_void: assumption_checks /= Void
+
+	-- Model consistency
+	model_count: assumptions_model.count = assumption_checks.count
 
 end

@@ -95,12 +95,17 @@ feature {NONE} -- Creation
 		end
 
 invariant
+	-- Per-element and model clauses were removed 2026-09-11: an
+	-- invariant runs on every feature call, so a clause that walks
+	-- the collection or builds its MML model makes every call O(n)
+	-- and a walk over the collection O(n^2) (simple_json read a
+	-- 1434-element array in 158 s under DBC). Models belong in
+	-- postconditions of the features that change them.
 	p_value_valid: p_value >= 0.0 and p_value <= 1.0
 	dof_valid: degrees_of_freedom >= 1
 	statistic_is_finite: True  -- statistic finite by contract
 	assumption_checks_not_void: assumption_checks /= Void
 
 	-- Model consistency
-	model_count: assumptions_model.count = assumption_checks.count
 
 end

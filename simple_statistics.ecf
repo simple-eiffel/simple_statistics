@@ -31,7 +31,9 @@
 			<concurrency support="scoop"/>
 			<void_safety support="all"/>
 		</capability>
-		<option full_class_checking="false" is_attached_by_default="true"/>
+		<option full_class_checking="false" is_attached_by_default="true">
+			<assertions precondition="true" postcondition="true" check="true" invariant="true" loop="true" supplier_precondition="true"/>
+		</option>
 		<library name="base" location="$ISE_LIBRARY/library/base/base.ecf"/>
 		<library name="testing" location="$ISE_LIBRARY/library/testing/testing.ecf"/>
 		<library name="simple_testing" location="$SIMPLE_EIFFEL/simple_testing/simple_testing.ecf"/>
